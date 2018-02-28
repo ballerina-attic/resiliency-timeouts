@@ -1,4 +1,4 @@
-# HTTP Calls with Retry and Timeouts
+# Retry and Timeout with HTTP
 This guide walks you through the process of incorporating resilience patterns like timeouts and retry to deal with potentially-busy remote backend services. Timeout resilience pattern will automatically cut off the remote call if it fails to respond before the deadline. The retry resilience pattern allows calls to the remote backed services repeatedly until it gets a response or until retry count is reached. Timeouts are often seen together with retries. Under the philosophy
 of “best effort,” the service attempts to repeat a failed remote calls
 that timed out. This helps to receive responses from remote service even it fails several times.
