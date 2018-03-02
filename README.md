@@ -120,13 +120,13 @@ Please find the implementation of the eCommerce backend service in `ballerina-gu
 
 ### Try it out
 
-1. Run both product_search service and the ecommerce_backend service by entering the following commands in sperate terminals
+1. Run both product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
     ```bash
-    <SAMPLE_ROOT_DIRECTORY>$  ballerina run guide/ecommerce_backend/
+    $  ballerina run guide/ecommerce_backend/
    ```
 
    ```bash
-   <SAMPLE_ROOT_DIRECTORY>$ ballerina run guide/product_search/
+   $ ballerina run guide/product_search/
    ```
 
 2. Then invoke the product_search by querying an item via HTTP GET method. 
@@ -139,7 +139,7 @@ Please find the implementation of the eCommerce backend service in `ballerina-gu
    {"itemId":"TV","brand":"ABC","condition":"New","itemLocation":"USA","marketingPrice":"$100","seller":"XYZ"}  
    ``` 
    
-### <a name="unit-testing"></a> Writing Unit Tests 
+### <a name="unit-testing"></a> Writing unit tests 
 
 In ballerina, the unit test cases should be in the same package and the naming convention should be as follows,
 * Test files should contain _test.bal suffix.
@@ -150,11 +150,11 @@ In ballerina, the unit test cases should be in the same package and the naming c
 This guide contains unit test cases in the respective folders. The two test cases are written to test the `product_serach_service` and the `ecommerce_backend_service` service.
 To run the unit tests, go to the sample root directory and run the following command
 ```bash
-<SAMPLE_ROOT_DIRECTORY>$ ballerina test guide/product_search/
+$ ballerina test guide/product_search/
 ```
 
 ```bash
-<SAMPLE_ROOT_DIRECTORY>$ ballerina test guide/ecommerce_backend/
+$ ballerina test guide/ecommerce_backend/
 ```
 
 ## <a name="deploying-the-scenario"></a> Deployment
@@ -165,11 +165,11 @@ Once you are done with the development, you can deploy the service using any of 
 You can deploy the RESTful service that you developed above, in your local environment. You can use the Ballerina executable archive (.balx) archive that we created above and run it in your local environment as follows. 
 
 ```
-<SAMPLE_ROOT_DIRECTORY>$  ballerina run product_search.balx 
+$  ballerina run product_search.balx 
 ```
 
 ```
-<SAMPLE_ROOT_DIRECTORY>$  ballerina run ecommerce_backend.balx 
+$  ballerina run ecommerce_backend.balx 
 ```
 
 ### <a name="deploying-on-docker"></a> Deploying on Docker
