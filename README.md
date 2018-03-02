@@ -16,21 +16,18 @@ You’ll build a web service that calls potentially busy remote backend(response
 ## <a name="pre-req"></a> Prerequisites
  
 - JDK 1.8 or later
-- Ballerina Distribution (Install Instructions:  https://ballerinalang.org/docs/quick-tour/quick-tour/#install-ballerina)
+- [Ballerina Distribution](https://ballerinalang.org/docs/quick-tour/quick-tour/#install-ballerina)
 - A Text Editor or an IDE 
 
-Optional Requirements
-- Docker (Refer: https://docs.docker.com/engine/installation/)
-- Ballerina IDE plugins. ( Intellij IDEA, VSCode, Atom)
-- Testerina (Refer: https://github.com/ballerinalang/testerina)
-- Container-support (Refer: https://github.com/ballerinalang/container-support)
-- Docerina (Refer: https://github.com/ballerinalang/docerina)
+Optional requirements
+- Ballerina IDE plugins. ( [IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina), [VSCode](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina), [Atom](https://atom.io/packages/language-ballerina))
+- [Docker](https://docs.docker.com/engine/installation/)
 
-## <a name="developing-service"></a> Develop the RESTFul service with retry and timeout resiliency patterns
+## <a name="developing-service"></a> Developing the RESTFul service with retry and timeout resiliency patterns
 
 ### Before you begin
 
-##### Understand the package structure
+#### Understand the package structure
 Ballerina is a complete programming language that can have any custom project structure as you wish. Although language allows you to have any package structure, we'll stick with the following package structure for this project.
 
 ```
@@ -48,7 +45,7 @@ The `product_search` is the service that handles the client requests. product_se
 
 The `ecommerce_backend` is an independent web service that accepts product queries via HTTP GET method and sends the item details back to the client. This service is used to mock a busy eCommerce backend
 
-### Develop the Ballerina services
+### Implementation of the Ballerina services
 
 #### product_serach_service.bal
 The `product_serach_service.bal` is the service which incorporates the retry and timeout resiliency patterns. You need to pass the remote endpoint timeout and retry configurations while defining the HTTP client endpoint. 
@@ -164,7 +161,7 @@ To run the unit tests, go to the sample root directory and run the following com
 
 Once you are done with the development, you can deploy the service using any of the methods that we listed below. 
 
-### <a name="deploying-on-locally"></a> Deploying Locally
+### <a name="deploying-on-locally"></a> Deploying locally
 You can deploy the RESTful service that you developed above, in your local environment. You can use the Ballerina executable archive (.balx) archive that we created above and run it in your local environment as follows. 
 
 ```
