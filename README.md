@@ -11,7 +11,7 @@ You’ll build a web service that calls potentially busy remote backend(response
 ![alt text](https://github.com/rosensilva/ballerina-samples/blob/master/resiliency-timeouts/images/retry_and_timeout_scenario.png)
 
 
-- **Search item on eCommerce stores **: To search and find the details about items, you can use the HTTP GET message that contains item details as query parameters.
+**Search item on eCommerce stores** : To search and find the details about items, you can use the HTTP GET message that contains item details as query parameters.
 
 ## <a name="pre-req"></a> Prerequisites
  
