@@ -23,7 +23,7 @@ The eCommerce product search service uses a potentially busy remote eCommerce ba
 ![alt text](/images/retry_and_timeout.png)
 
 
-**Search item on eCommerce stores**: To search and find the details about items, you can use the HTTP GET message that contains item details as query parameters.
+**Search item on eCommerce stores**: To search and find the details about items, you can use an HTTP GET message that contains item details as query parameters.
 
 The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, these third=party services are also written in Ballerina.
 
