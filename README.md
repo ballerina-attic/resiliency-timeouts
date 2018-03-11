@@ -8,7 +8,7 @@ that timed out. This helps to receive responses from remote service even it fail
 You’ll build a web service that calls potentially busy remote backend(response only to few requests). The service incorporates both retry and timeout resiliency patterns to call the remote backend. For better understanding, we will map this with a real-world scenario of an eCommerce product search service. The eCommerce product search service uses potentially-busy remote eCommerce backend to obtain details about products. When some item is searched from the eCommerce product search service it will call to the eCommerce backend to get the details about the item. The eCommerce backend is typically busy and might not respond to all the requests. The retry and timeout patterns will help to get the response from the busy eCommerce backend.
 
 
-![alt text](https://github.com/rosensilva/ballerina-samples/blob/master/resiliency-timeouts/images/retry_and_timeout_scenario.png)
+![alt text](/images/retry_and_timeout.png)
 
 
 **Search item on eCommerce stores** : To search and find the details about items, you can use the HTTP GET message that contains item details as query parameters.
