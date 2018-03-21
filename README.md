@@ -1,6 +1,6 @@
 # Retry and Timeout with HTTP
 
-Timeout resilience pattern will automatically cut off the remote call if it fails to respond before the deadline. The retry resilience pattern allows calls to the remote backed services repeatedly until it gets a response or until retry count is reached. Timeouts are often seen together with retries. Under the philosophy of “best effort,” the service attempts to repeat a failed remote calls that timed out. This helps to receive responses from remote service even it fails several times.
+Timeout resilience pattern automatically cuts off the remote call if it fails to respond before the deadline. The retry resilience pattern allows repeated calls to remote services until it gets a response or until the retry count is reached. Timeouts are often seen together with retries. Under the philosophy of “best effort”, the service attempts to repeat failed remote calls that timed out. This helps to receive responses from the remote service even if it fails several times.
 
 > This guide walks you through the process of incorporating resilience patterns like timeouts and retry to deal with potentially-busy remote backend services.
 
@@ -25,7 +25,7 @@ The eCommerce product search service uses a potentially busy remote eCommerce ba
 
 **Search item on eCommerce stores**: To search and find the details about items, you can use an HTTP GET message that contains item details as query parameters.
 
-The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, these third=party services are also written in Ballerina.
+The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, these third-party services are also written in Ballerina.
 
 ## <a name="pre-req"></a> Prerequisites
  
