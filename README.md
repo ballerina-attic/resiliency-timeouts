@@ -129,8 +129,7 @@ The eCommerce backend service is a simple web service that is used to mock a rea
 ```
 This mock eCommerce backend is designed only to respond once for every five requests. The 80% of calls to this eCommerce backend will not get any response.
 
-Please find the implementation of the eCommerce backend service in [ballerina-guides/resiliency-timeouts/guides/ecommerce_backend/ecommerce_backend_service.bal](https://github.com/ballerina-guides/resiliency-timeouts/guides/ecommerce_backend/ecommerce_backend_service.bal)
-
+Please find the implementation of the eCommerce backend service in [https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal](https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal).
 
 ## <a name="testing"></a> Testing 
 
