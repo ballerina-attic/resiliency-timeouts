@@ -49,24 +49,20 @@ service<http:Service> productSearchService bind productSearchEP {
     }
     searchProducts (endpoint httpConnection, http:Request request) {
         map queryParams = request.getQueryParams();
-        var itemString = <string>queryParams.item;
-        match itemString {
-            string requestedItem => {
-            // Initialize HTTP request and response to interact with eCommerce endpoint
-                http:Request outRequest = {};
-                http:Response inResponse = {};
-                if (requestedItem != null) {
-                    // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
-                    inResponse =? eCommerceEndpoint -> get("/items/" + requestedItem, outRequest);
-                    // Send the item details back to the client
-                    _ = httpConnection -> forward(inResponse);
-                }
-                else {
-                    inResponse.setStringPayload("Please enter item as query parameter");
-                    inResponse.statusCode = 400;
-                    _ = httpConnection -> respond(inResponse);
-                }
-            }
+        var requestedItem = <string>queryParams.item;
+        // Initialize HTTP request and response to interact with eCommerce endpoint
+        http:Request outRequest = {};
+        http:Response inResponse = {};
+        if (requestedItem != null) {
+            // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
+            inResponse =? eCommerceEndpoint -> get("/items/" + requestedItem, outRequest);
+            // Send the item details back to the client
+            _ = httpConnection -> forward(inResponse);
+        }
+        else {
+            inResponse.setStringPayload("Please enter item as query parameter");
+            inResponse.statusCode = 400;
+            _ = httpConnection -> respond(inResponse);
         }
     }
 }
