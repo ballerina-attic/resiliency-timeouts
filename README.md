@@ -45,14 +45,16 @@ The eCommerce backend is not necessarily a Ballerina service and can theoretical
 Ballerina is a complete programming language that can have any custom project structure that you wish. Although the language allows you to have any package structure, use the following package structure for this project to follow this guide.
 
 ```
-└── guide
-    ├── product_search
-    │   ├── product_search_service_test.bal
-    │   └── product_serach_service.bal
-    └── ecommerce_backend
-        ├── ecommerce_backend_service.bal
-        └── ecommerce_backend_service_test.bal
-
+└── src
+    ├── ecommerce_backend
+    │   ├── ecommerce_backend_service.bal
+    │   └── tests
+    │       └── ecommerce_backend_service_test.bal
+    └── product_search
+        ├── product_serach_service.bal
+        └── tests
+            └── product_search_service_test.bal
+    
 ```
 
 The `product_search` is the service that handles the client requests. The product_search service incorporates the resiliency patterns like timeout and retry when calling potentially busy remote eCommerce backend.  
@@ -63,62 +65,82 @@ The `ecommerce_backend` is an independent web service that accepts product queri
 
 #### product_serach_service.bal
 The `product_serach_service.bal` is the service that incorporates the retry and timeout resiliency patterns. You need to pass the remote endpoint timeout and retry configurations while defining the HTTP client endpoint. 
-
+The `endpoint` keyword in Ballerina refers to a connection with a remote service. The following code segment creates an HTTP client endpoint with the endpoint timeout of 1000 milliseconds and 10 retries with an interval of 100 milliseconds.
+ 
 ```ballerina
-package guide.product_search;
+endpoint http:ClientEndpoint eCommerceEndpoint {
+// URI to the ecommerce backend
+    targets:[
+            {
+                uri:"http://localhost:9092/browse"
+            }
+            ],
+// End point timeout should be in milliseconds
+    endpointTimeout:1000,
+// Pass the endpoint timeout and retry configurations while creating the http client endpoint
+// Retry configuration should have retry count and the time interval between two retires
+    retry:{count:10, interval:100}
+};
+```
 
-import ballerina.net.http;
+The argument `endpointTimeout` refers to the remote HTTP client timeout in milliseconds and `retry` refers to the retry configuration. There are two parameters in the retry configuration: `count` refers to the number of retires and the `interval` refers to the time interval between two consecutive retries. The `eCommerceEndpoint` is the reference to the HTTP endpoint of the eCommerce backend. Whenever you call that remote HTTP endpoint, it practices the retry and timeout resiliency patterns.
 
-@http:configuration {basePath:"/products"}
-service<http> productSearchService {
-    // Initialize the remote eCommerce endpoint
-    endpoint<http:HttpClient> eCommerceEndpoint {
-    // Pass the endpoint timeout and retry configurations while creating the HTTP client
-    // Endpoint timeout should be in milliseconds
-    // The retry configuration should have retry count and the time interval between two retries
-        create http:HttpClient("http://localhost:9092/browse/",
-                               {endpointTimeout:1000, retryConfig:{count:10, interval:100}});
-    }
+Refer the following code for the complete implementation of ecommerce product search service with retry and timeouts.
+```ballerina
+package product_search;
 
-    @http:resourceConfig {
+import ballerina/net.http;
+
+// Create the endpoint for the ecommerce product search service
+endpoint http:ServiceEndpoint productSearchEP {
+    port:9090
+};
+
+// Initialize the remote eCommerce endpoint
+endpoint http:ClientEndpoint eCommerceEndpoint {
+// URI to the ecommerce backend
+    targets:[
+            {
+                uri:"http://localhost:9092/browse"
+            }
+            ],
+// End point timeout should be in milliseconds
+    endpointTimeout:1000,
+// Pass the endpoint timeout and retry configurations while creating the http client endpoint
+// Retry configuration should have retry count and the time interval between two retires
+    retry:{count:10, interval:100}
+};
+
+
+@http:ServiceConfig {basePath:"/products"}
+service<http:Service> productSearchService bind productSearchEP {
+
+    // ecommerce product search resource
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/search"
     }
-    resource searchProducts (http:Connection httpConnection, http:InRequest request) {
+    searchProducts (endpoint httpConnection, http:Request request) {
         map queryParams = request.getQueryParams();
-        var requestedItem, err = (string)queryParams.item;
-
-        // Initialize the response message to send back to the client
-        http:OutResponse outResponse = {};
-
-        // Send a bad request message to the client if the request does not contain search items
-        if (err != null) {
-            outResponse.setStringPayload("Error : Please provide 'item' in query parameter");
-            // set the response code as 400 to indicate a bad request
-            outResponse.statusCode = 400;
-            _ = httpConnection.respond(outResponse);
-            return;
+        var requestedItem = <string>queryParams.item;
+        // Initialize HTTP request and response to interact with eCommerce endpoint
+        http:Request outRequest = {};
+        http:Response inResponse = {};
+        if (requestedItem != null) {
+            // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
+            inResponse =? eCommerceEndpoint -> get("/items/" + requestedItem, outRequest);
+            // Send the item details back to the client
+            _ = httpConnection -> forward(inResponse);
         }
-        // Initialize an HTTP request and response to interact with the eCommerce endpoint
-        http:OutRequest outRequest = {};
-        http:InResponse inResponse = {};
-        // Call the busy eCommerce backed (configured with timeout resiliency) to get the item details
-        inResponse, _ = eCommerceEndpoint.get("/items/" + requestedItem, outRequest);
-        // Send the item details back to the client
-        outResponse.setJsonPayload(inResponse.getJsonPayload());
-        _ = httpConnection.respond(outResponse);
+        else {
+            inResponse.setStringPayload("Please enter item as query parameter");
+            inResponse.statusCode = 400;
+            _ = httpConnection -> respond(inResponse);
+        }
     }
 }
-```
 
-The `endpoint` keyword in Ballerina refers to a connection with a remote service. The following code segment creates an HTTP client with the endpoint timeout of 1000 milliseconds and 10 retries with an interval of 100 milliseconds.
- 
-```ballerina
-create http:HttpClient("http://localhost:9092/browse/",
-{endpointTimeout:1000, retryConfig:{count:10, interval:100}});
 ```
-
-The argument `endpointTimeout` refers to the remote HTTP client timeout in milliseconds and `retryConfig` refers to the retry configuration. There are two parameters in the retry configuration: `count` refers to the number of retires and the `interval` refers to the time interval between two consecutive retries. The `eCommerceEndpoint` is the reference to the HTTP endpoint of the eCommerce backend. Whenever you call that remote HTTP endpoint, it practices the retry and timeout resiliency patterns.
 
 
 #### ecommerce_backend_service.bal 
@@ -137,11 +159,11 @@ Please find the implementation of the eCommerce backend service in [https://gith
 
 1. Run both the product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
     ```bash
-    $  ballerina run guide/ecommerce_backend/
+    $  ballerina run src/ecommerce_backend/
    ```
 
    ```bash
-   $ ballerina run guide/product_search/
+   $ ballerina run src/product_search/
    ```
 
 2. Invoke the product_search service by querying an item via the HTTP GET method. 
@@ -156,7 +178,7 @@ Please find the implementation of the eCommerce backend service in [https://gith
    
 ### <a name="unit-testing"></a> Writing unit tests 
 
-In Ballerina, the unit test cases should be in the same package and the naming convention should be as follows.
+In Ballerina, the unit test cases should be in the same package inside a `tests` folder. The naming convention should be as follows.
 * Test files should contain _test.bal suffix.
 * Test functions should contain test prefix.
   * e.g., testProductSearchService()
@@ -164,13 +186,9 @@ In Ballerina, the unit test cases should be in the same package and the naming c
         
 This guide contains unit test cases in the respective folders. The two test cases are written to test the `product_serach_service` and the `ecommerce_backend_service` service.
 
-To run the unit tests, go to the sample root directory and run the following command.
+To run the unit tests, navigate to src folder inside the sample root directory and run the following command.
 ```bash
-$ ballerina test guide/product_search/
-```
-
-```bash
-$ ballerina test guide/ecommerce_backend/
+$ ballerina test 
 ```
 
 ## <a name="deploying-the-scenario"></a> Deployment
@@ -180,14 +198,23 @@ Once you are done with the development, you can deploy the service using any of 
 ### <a name="deploying-on-locally"></a> Deploying locally
 You can deploy the service that you developed above, in your local environment. You can use the Ballerina executable archive (.balx) archive that you created above and run it in your local environment as follows. 
 
-```
-$  ballerina run product_search.balx 
-```
+**Building** 
+Navigate to `SAMPLE_ROOT/src` and run the following commands
+   ```bash
+    $ ballerina build product_search/
 
-```
-$  ballerina run ecommerce_backend.balx 
-```
+    $ ballerina build ecommerce_backend/
 
+   ```
+
+**Running**
+   ```bash
+    $ ballerina run product_search.balx
+
+    $ ballerina run ecommerce_backend.balx 
+
+   ```
+   
 ### <a name="deploying-on-docker"></a> Deploying on Docker
 (Work in progress) 
 
