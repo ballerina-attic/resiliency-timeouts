@@ -14,24 +14,30 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package guide.ecommerce_backend;
+package ecommerce_backend;
 
-import ballerina.net.http;
+import ballerina/net.http;
+import ballerina/runtime;
 
 int count = 0;
 
-@http:configuration {basePath:"/browse", port:9092}
-service<http> eCommerceService {
+// Create the endpoint for the ecommerce backend
+endpoint http:ServiceEndpoint eCommerceBackendEP {
+    port:9092
+};
 
-    @http:resourceConfig {
+@http:ServiceConfig {basePath:"/browse"}
+service<http:Service> eCommerceService bind eCommerceBackendEP {
+
+    @http:ResourceConfig {
         methods:["GET"],
         path:"/items/{item_id}"
     }
-    resource findItems (http:Connection httpConnection, http:InRequest request, string item_id) {
+    findItems (endpoint httpConnection, http:Request request, string item_id) {
         count = count + 1;
         // Mock the busy service by only responding to one request out of five incoming requests
         if (count % 5 != 4) {
-            sleep(10000);
+            runtime:sleepCurrentWorker(10000);
         }
         // Initialize sample item details about the item
         json itemDetails = {
@@ -44,8 +50,8 @@ service<http> eCommerceService {
                            };
 
         // Send the response back with the item details
-        http:OutResponse response = {};
+        http:Response response = {};
         response.setJsonPayload(itemDetails);
-        _ = httpConnection.respond(response);
+        _ = httpConnection -> respond(response);
     }
 }
