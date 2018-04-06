@@ -1,4 +1,5 @@
-# Retry and Timeout with HTTP
+[![Build Status](https://travis-ci.org/rosensilva/resiliency-timeouts.svg?branch=master)](https://travis-ci.org/rosensilva/resiliency-timeouts)
+# Endpoint Resiliency
 
 Timeout resilience pattern automatically cuts off the remote call if it fails to respond before the deadline. The retry resilience pattern allows repeated calls to remote services until it gets a response or until the retry count is reached. Timeouts are often seen together with retries. Under the philosophy of “best effort”, the service attempts to repeat failed remote calls that timed out. This helps to receive responses from the remote service even if it fails several times.
 
