@@ -21,7 +21,7 @@ You’ll build a web service that calls a potentially busy remote backend (respo
 The eCommerce product search service uses a potentially busy remote eCommerce backend to obtain details about products. When an item is searched from the eCommerce product search service it calls the eCommerce backend to get the item details. The eCommerce backend is typically busy and might not respond to all the requests. The retry and timeout patterns will help to get the response from the busy eCommerce backend.
 
 
-![alt text](/images/retry_and_timeout.png)
+![alt text](/images/resiliency-timeouts.png)
 
 
 **Search item on eCommerce stores**: To search and find the details about items, you can use an HTTP GET message that contains item details as query parameters.
