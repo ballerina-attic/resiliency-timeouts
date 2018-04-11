@@ -17,6 +17,30 @@
 package product_search;
 
 import ballerina/net.http;
+//import ballerinax/docker;
+//import ballerinax/kubernetes;
+
+//@docker:Config {
+//    registry:"ballerina.guides.io",
+//    name:"product_search_service",
+//    tag:"v1.0"
+//}
+
+//@kubernetes:Ingress {
+//    hostname:"ballerina.guides.io",
+//    name:"ballerina-guides-product-search-service",
+//    path:"/"
+//}
+//
+//@kubernetes:Service {
+//    serviceType:"NodePort",
+//    name:"ballerina-guides-product-search-service"
+//}
+//
+//@kubernetes:Deployment {
+//    image:"ballerina.guides.io/product_search_service:v1.0",
+//    name:"ballerina-guides-product-search-service"
+//}
 
 // Create the endpoint for the ecommerce product search service
 endpoint http:ServiceEndpoint productSearchEP {
