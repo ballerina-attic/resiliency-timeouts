@@ -146,7 +146,8 @@ service<http:Service> productSearchService bind productSearchEP {
 The eCommerce backend service is a simple web service that is used to mock a real world eCommerce web service. This service sends the following JSON message with the item details. 
 
 ```json
-{"itemId":"item_id", "brand":"ABC", "condition":"New", "itemLocation":"USA", "marketingPrice":"$100", "seller":"XYZ"};
+{"itemId":"item_id", "brand":"ABC", "condition":"New","itemLocation":"USA",
+"marketingPrice":"$100", "seller":"XYZ"};
 ```
 This mock eCommerce backend is designed only to respond once for every five requests. The 80% of calls to this eCommerce backend will not get any response.
 
@@ -172,7 +173,8 @@ Please find the implementation of the eCommerce backend service in [https://gith
    The eCommerce product search service should finally respond after several internal timeouts and retires with the following JSON message.
    
    ```json
-   {"itemId":"TV","brand":"ABC","condition":"New","itemLocation":"USA","marketingPrice":"$100","seller":"XYZ"}  
+   {"itemId":"TV","brand":"ABC","condition":"New", "itemLocation":"USA",
+   "marketingPrice":"$100","seller":"XYZ"}  
    ``` 
    
 ### Writing unit tests 
@@ -203,7 +205,6 @@ Navigate to `SAMPLE_ROOT/src` and run the following commands
     $ ballerina build product_search/
 
     $ ballerina build ecommerce_backend/
-
    ```
 
 **Running**
@@ -211,7 +212,6 @@ Navigate to `SAMPLE_ROOT/src` and run the following commands
     $ ballerina run product_search.balx
 
     $ ballerina run ecommerce_backend.balx 
-
    ```
    
 ### Deploying on Docker
@@ -242,7 +242,6 @@ endpoint http:ServiceEndpoint productSearchEP {
 
 @http:ServiceConfig {basePath:"/products"}
 service<http:Service> productSearchService bind productSearchEP {
-   
 ``` 
 
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
@@ -310,8 +309,8 @@ endpoint http:ServiceEndpoint productSearchEP {
 
 @http:ServiceConfig {basePath:"/products"}
 service<http:Service> productSearchService bind productSearchEP {  
-        
 ``` 
+
 - Here we have used ``  @kubernetes:Deployment `` to specify the docker image name which will be created as part of building this service. 
 - We have also specified `` @kubernetes:Service {} `` so that it will create a Kubernetes service which will expose the Ballerina service that is running on a Pod.  
 - In addition we have used `` @kubernetes:Ingress `` which is the external interface to access your service (with path `` /`` and host name ``ballerina.guides.io``)
