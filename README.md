@@ -7,14 +7,13 @@ Timeout resilience pattern automatically cuts off the remote call if it fails to
 
 The following are the sections available in this guide.
 
-- [What you'll build](#what-you-build)
-- [Prerequisites](#pre-req)
-- [Developing the service](#developing-service)
+- [What you'll build](#what-youll-build)
+- [Prerequisites](#prerequisites)
+- [Developing the service](#developing-the-restful-service-with-retry-and-timeout-resiliency-patterns)
 - [Testing](#testing)
-- [Deployment](#deploying-the-scenario)
-- [Observability](#observability)
+- [Deployment](#deployment)
 
-## <a name="what-you-build"></a>  What you'll build
+## What you'll build
 
 You’ll build a web service that calls a potentially busy remote backend (responds only to few requests). The service incorporates both retry and timeout resiliency patterns to call the remote backend. For better understanding, this is mapped with a real-world scenario of an eCommerce product search service. 
 
@@ -28,7 +27,7 @@ The eCommerce product search service uses a potentially busy remote eCommerce ba
 
 The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, these third-party services are also written in Ballerina.
 
-## <a name="pre-req"></a> Prerequisites
+## Prerequisites
  
 - JDK 1.8 or later
 - [Ballerina Distribution](https://github.com/ballerina-lang/ballerina/blob/master/docs/quick-tour.md)
@@ -38,7 +37,7 @@ The eCommerce backend is not necessarily a Ballerina service and can theoretical
 - Ballerina IDE plugins. ( [IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina), [VSCode](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina), [Atom](https://atom.io/packages/language-ballerina))
 - [Docker](https://docs.docker.com/engine/installation/)
 
-## <a name="developing-service"></a> Developing the RESTFul service with retry and timeout resiliency patterns
+## Developing the RESTFul service with retry and timeout resiliency patterns
 
 ### Before you begin
 
@@ -99,16 +98,16 @@ endpoint http:ServiceEndpoint productSearchEP {
 
 // Initialize the remote eCommerce endpoint
 endpoint http:ClientEndpoint eCommerceEndpoint {
-// URI to the ecommerce backend
+    // URI to the ecommerce backend
     targets:[
-            {
-                uri:"http://localhost:9092/browse"
-            }
-            ],
-// End point timeout should be in milliseconds
+        {
+            uri:"http://localhost:9092/browse"
+        }
+    ],
+    // End point timeout should be in milliseconds
     endpointTimeout:1000,
-// Pass the endpoint timeout and retry configurations while creating the http client endpoint
-// Retry configuration should have retry count and the time interval between two retires
+    // Pass the endpoint timeout and retry configurations while creating the http endpoint
+    // Retry configuration can have retry count and the time interval between two retires
     retry:{count:10, interval:100}
 };
 
@@ -116,19 +115,19 @@ endpoint http:ClientEndpoint eCommerceEndpoint {
 @http:ServiceConfig {basePath:"/products"}
 service<http:Service> productSearchService bind productSearchEP {
 
-    // ecommerce product search resource
+// ecommerce product search resource
     @http:ResourceConfig {
         methods:["GET"],
         path:"/search"
     }
-    searchProducts (endpoint httpConnection, http:Request request) {
+    searchProducts(endpoint httpConnection, http:Request request) {
         map queryParams = request.getQueryParams();
         var requestedItem = <string>queryParams.item;
         // Initialize HTTP request and response to interact with eCommerce endpoint
         http:Request outRequest = {};
         http:Response inResponse = {};
         if (requestedItem != null) {
-            // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
+            // Call the busy eCommerce backed(with timeout resiliency) to get item details
             inResponse =? eCommerceEndpoint -> get("/items/" + requestedItem, outRequest);
             // Send the item details back to the client
             _ = httpConnection -> forward(inResponse);
@@ -140,7 +139,6 @@ service<http:Service> productSearchService bind productSearchEP {
         }
     }
 }
-
 ```
 
 
@@ -154,7 +152,7 @@ This mock eCommerce backend is designed only to respond once for every five requ
 
 Please find the implementation of the eCommerce backend service in [https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal](https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal).
 
-## <a name="testing"></a> Testing 
+## Testing 
 
 ### Try it out
 
@@ -177,7 +175,7 @@ Please find the implementation of the eCommerce backend service in [https://gith
    {"itemId":"TV","brand":"ABC","condition":"New","itemLocation":"USA","marketingPrice":"$100","seller":"XYZ"}  
    ``` 
    
-### <a name="unit-testing"></a> Writing unit tests 
+### Writing unit tests 
 
 In Ballerina, the unit test cases should be in the same package inside a `tests` folder. The naming convention should be as follows.
 * Test files should contain _test.bal suffix.
@@ -192,11 +190,11 @@ To run the unit tests, navigate to src folder inside the sample root directory a
 $ ballerina test 
 ```
 
-## <a name="deploying-the-scenario"></a> Deployment
+## Deployment
 
 Once you are done with the development, you can deploy the service using any of the methods that are listed below. 
 
-### <a name="deploying-on-locally"></a> Deploying locally
+### Deploying locally
 You can deploy the service that you developed above, in your local environment. You can use the Ballerina executable archive (.balx) archive that you created above and run it in your local environment as follows. 
 
 **Building** 
@@ -216,7 +214,7 @@ Navigate to `SAMPLE_ROOT/src` and run the following commands
 
    ```
    
-### <a name="deploying-on-docker"></a> Deploying on Docker
+### Deploying on Docker
 
 You can run the services that we developed above as a docker container. As Ballerina platform offers native support for running ballerina programs on containers, you just need to put the corresponding docker annotations on your service code. 
 Let's see how we can deploy the product_search_service we developed above on docker. 
@@ -271,7 +269,7 @@ This will also create the corresponding docker image using the docker annotation
     ```
 
 
-### <a name="deploying-on-k8s"></a> Deploying on Kubernetes
+### Deploying on Kubernetes
 
 - You can run the services that we developed above, on Kubernetes. The Ballerina language offers native support for running a ballerina programs on Kubernetes, 
 with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the docker images. 
@@ -366,16 +364,3 @@ Access the service
 ``` 
  curl -X GET http://ballerina.guides.io/products/search?item=TV
 ```
-
-
-## <a name="observability"></a> Observability 
-
-### <a name="logging"></a> Logging
-(Work in progress) 
-
-### <a name="metrics"></a> Metrics
-(Work in progress) 
-
-
-### <a name="tracing"></a> Tracing 
-(Work in progress) 
