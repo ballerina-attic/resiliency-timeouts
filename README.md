@@ -157,25 +157,25 @@ Please find the implementation of the eCommerce backend service in [https://gith
 
 ### Try it out
 
-1. Run both the product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
-    ```bash
+- Run both the product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
+```bash
     $  ballerina run src/ecommerce_backend/
-   ```
+```
 
-   ```bash
+```bash
    $ ballerina run src/product_search/
-   ```
+```
 
-2. Invoke the product_search service by querying an item via the HTTP GET method. 
-   ``` bash
+- Invoke the product_search service by querying an item via the HTTP GET method. 
+``` bash
     curl localhost:9090/products/search?item=TV
-   ``` 
+``` 
    The eCommerce product search service should finally respond after several internal timeouts and retires with the following JSON message.
    
-   ```json
+```json
    {"itemId":"TV","brand":"ABC","condition":"New", "itemLocation":"USA",
    "marketingPrice":"$100","seller":"XYZ"}  
-   ``` 
+``` 
    
 ### Writing unit tests 
 
@@ -201,18 +201,18 @@ You can deploy the service that you developed above, in your local environment. 
 
 **Building** 
 Navigate to `SAMPLE_ROOT/src` and run the following commands
-   ```bash
+```bash
     $ ballerina build product_search/
 
     $ ballerina build ecommerce_backend/
-   ```
+```
 
 **Running**
-   ```bash
+```bash
     $ ballerina run product_search.balx
 
     $ ballerina run ecommerce_backend.balx 
-   ```
+```
    
 ### Deploying on Docker
 
@@ -247,25 +247,26 @@ service<http:Service> productSearchService bind productSearchEP {
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
 This will also create the corresponding docker image using the docker annotations that you have configured above. Navigate to the `<SAMPLE_ROOT>/src/` folder and run the following command.  
   
-  ```
+```
   $ballerina build product_search
   
   Run following command to start docker container: 
   docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
-  ```
+```
 - Once you successfully build the docker image, you can run it with the `` docker run`` command that is shown in the previous step.  
 
-    ```   
+```   
     docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
-    ```
-    Here we run the docker image with flag`` -p <host_port>:<container_port>`` so that we use the host port 9090 and the container port 9090. Therefore you can access the service through the host port. 
+```
+
+   Here we run the docker image with flag`` -p <host_port>:<container_port>`` so that we use the host port 9090 and the container port 9090. Therefore you can access the service through the host port. 
 
 - Verify docker container is running with the use of `` $ docker ps``. The status of the docker container should be shown as 'Up'. 
 - You can access the service using the same curl commands that we've used above. 
  
-    ```
+```
    curl -X GET http://localhost:9090/products/search?item=TV
-    ```
+ ```
 
 
 ### Deploying on Kubernetes
@@ -318,12 +319,12 @@ service<http:Service> productSearchService bind productSearchEP {
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
 This will also create the corresponding docker image and the Kubernetes artifacts using the Kubernetes annotations that you have configured above.
   
-  ```
+```
   $ballerina build product_search
   
   Run following command to deploy kubernetes artifacts:  
   kubectl apply -f ./target/product_search/kubernetes
-  ```
+```
 
 - You can verify that the docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker ps images ``. 
 - Also the Kubernetes artifacts related our service, will be generated in `` ./target/product_search/kubernetes``. 
