@@ -266,7 +266,7 @@ This will also create the corresponding docker image using the docker annotation
  
 ```
    curl -X GET http://localhost:9090/products/search?item=TV
- ```
+```
 
 
 ### Deploying on Kubernetes
