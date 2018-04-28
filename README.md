@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/rosensilva/resiliency-timeouts.svg?branch=master)](https://travis-ci.org/rosensilva/resiliency-timeouts)
+[![Build Status](https://travis-ci.org/ballerina-guides/resiliency-timeouts.svg?branch=master)](https://travis-ci.org/ballerina-guides/resiliency-timeouts)
+
 # Endpoint Resiliency
 
 Timeout resilience pattern automatically cuts off the remote call if it fails to respond before the deadline. The retry resilience pattern allows repeated calls to remote services until it gets a response or until the retry count is reached. Timeouts are often seen together with retries. Under the philosophy of “best effort”, the service attempts to repeat failed remote calls that timed out. This helps to receive responses from the remote service even if it fails several times.
@@ -12,6 +13,7 @@ The following are the sections available in this guide.
 - [Developing the service](#developing-the-restful-service-with-retry-and-timeout-resiliency-patterns)
 - [Testing](#testing)
 - [Deployment](#deployment)
+- [Observability](#observability)
 
 ## What you'll build
 
@@ -29,113 +31,125 @@ The eCommerce backend is not necessarily a Ballerina service and can theoretical
 
 ## Prerequisites
  
-- JDK 1.8 or later
-- [Ballerina Distribution](https://github.com/ballerina-lang/ballerina/blob/master/docs/quick-tour.md)
+- [Ballerina Distribution](https://ballerina.io/learn/getting-started/)
 - A Text Editor or an IDE 
 
 ### Optional requirements
-- Ballerina IDE plugins. ( [IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina), [VSCode](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina), [Atom](https://atom.io/packages/language-ballerina))
+- Ballerina IDE plugins ([IntelliJ IDEA](https://plugins.jetbrains.com/plugin/9520-ballerina), [VSCode](https://marketplace.visualstudio.com/items?itemName=WSO2.Ballerina), [Atom](https://atom.io/packages/language-ballerina))
 - [Docker](https://docs.docker.com/engine/installation/)
+- [Kubernetes](https://kubernetes.io/docs/setup/)
 
-## Developing the RESTFul service with retry and timeout resiliency patterns
+## Implementation
 
-### Before you begin
+> If you want to skip the basics, you can download the git repo and directly move to the "Testing" section by skipping  "Implementation" section.
 
-#### Understand the package structure
+### Create the project structure
+
 Ballerina is a complete programming language that can have any custom project structure that you wish. Although the language allows you to have any package structure, use the following package structure for this project to follow this guide.
-
 ```
-└── src
-    ├── ecommerce_backend
-    │   ├── ecommerce_backend_service.bal
-    │   └── tests
-    │       └── ecommerce_backend_service_test.bal
-    └── product_search
-        ├── product_serach_service.bal
-        └── tests
-            └── product_search_service_test.bal
-    
+└── resiliency-timeouts
+    └── guide
+        ├── ecommerce_backend
+        │   ├── ecommerce_backend_service.bal
+        │   └── tests
+        │       └── ecommerce_backend_service_test.bal
+        ├── product_search
+        │   ├── product_search_service.bal
+        │   └── tests
+        │       └── product_search_service_test.bal
+        └── tests
+            └── integration_test.bal
+```
+
+- Create the above directories in your local machine and also create empty `.bal` files.
+
+- Then open the terminal and navigate to `resiliency-timeouts/guide` and run Ballerina project initializing toolkit.
+```bash
+   $ ballerina init
 ```
 
 The `product_search` is the service that handles the client requests. The product_search service incorporates the resiliency patterns like timeout and retry when calling potentially busy remote eCommerce backend.  
 
 The `ecommerce_backend` is an independent web service that accepts product queries via an HTTP GET method and sends the item details back to the client. This service is used to mock a busy eCommerce backend.
 
-### Implementation of the Ballerina services
+### Developing the RESTFul service with retry and timeout resiliency patterns
 
 #### product_search_service.bal
 The `product_search_service.bal` is the service that incorporates the retry and timeout resiliency patterns. You need to pass the remote endpoint timeout and retry configurations while defining the HTTP client endpoint. 
-The `endpoint` keyword in Ballerina refers to a connection with a remote service. The following code segment creates an HTTP client endpoint with the endpoint timeout of 1000 milliseconds and 10 retries with an interval of 100 milliseconds.
+The `endpoint` keyword in Ballerina refers to a connection with a remote service. The following code segment creates an HTTP client endpoint with `http://localhost:9092/browse` URL and with the endpoint timeout of 1000 milliseconds, 0.5  back off factor and 10 retries with an interval of 100 milliseconds.
  
 ```ballerina
-endpoint http:ClientEndpoint eCommerceEndpoint {
-// URI to the ecommerce backend
-    targets:[
-            {
-                uri:"http://localhost:9092/browse"
-            }
-            ],
-// End point timeout should be in milliseconds
-    endpointTimeout:1000,
-// Pass the endpoint timeout and retry configurations while creating the http client endpoint
-// Retry configuration should have retry count and the time interval between two retires
-    retry:{count:10, interval:100}
+endpoint http:Client eCommerceEndpoint {
+    // URI to the ecommerce backend
+    url: "http://localhost:9092/browse",
+    // End point timeout should be in milliseconds
+    timeoutMillis: 1000,
+    // Pass the endpoint timeout and retry configurations while creating the http client
+    // Retry configuration should have retry count,
+    // time interval between two retires and back off factor
+    retryConfig: {
+        interval: 100,
+        count: 10,
+        backOffFactor: 0.5
+    }
 };
 ```
 
-The argument `endpointTimeout` refers to the remote HTTP client timeout in milliseconds and `retry` refers to the retry configuration. There are two parameters in the retry configuration: `count` refers to the number of retires and the `interval` refers to the time interval between two consecutive retries. The `eCommerceEndpoint` is the reference to the HTTP endpoint of the eCommerce backend. Whenever you call that remote HTTP endpoint, it practices the retry and timeout resiliency patterns.
+The `eCommerceEndpoint` is the reference to the HTTP endpoint of the eCommerce backend. Whenever you call that remote HTTP endpoint, it practices the retry and timeout resiliency patterns.
 
 Refer the following code for the complete implementation of ecommerce product search service with retry and timeouts.
 ```ballerina
-package product_search;
-
-import ballerina/net.http;
+import ballerina/http;
 
 // Create the endpoint for the ecommerce product search service
-endpoint http:ServiceEndpoint productSearchEP {
-    port:9090
+endpoint http:Listener productSearchEP {
+    port: 9090
 };
 
 // Initialize the remote eCommerce endpoint
-endpoint http:ClientEndpoint eCommerceEndpoint {
+endpoint http:Client eCommerceEndpoint {
     // URI to the ecommerce backend
-    targets:[
-        {
-            uri:"http://localhost:9092/browse"
-        }
-    ],
+    url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
-    endpointTimeout:1000,
-    // Pass the endpoint timeout and retry configurations while creating the http endpoint
-    // Retry configuration can have retry count and the time interval between two retires
-    retry:{count:10, interval:100}
+    timeoutMillis: 1000,
+    // Pass the endpoint timeout and retry configurations while creating the http client
+    // Retry configuration should have retry count,
+    // time interval between two retires and back off factor
+    retryConfig: {
+        interval: 100,
+        count: 10,
+        backOffFactor: 0.5
+    }
 };
 
 
-@http:ServiceConfig {basePath:"/products"}
+@http:ServiceConfig { basePath: "/products" }
 service<http:Service> productSearchService bind productSearchEP {
 
-// ecommerce product search resource
+    // ecommerce product search resource
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/search"
+        methods: ["GET"],
+        path: "/search"
     }
     searchProducts(endpoint httpConnection, http:Request request) {
         map queryParams = request.getQueryParams();
         var requestedItem = <string>queryParams.item;
         // Initialize HTTP request and response to interact with eCommerce endpoint
-        http:Request outRequest = {};
-        http:Response inResponse = {};
+        http:Request outRequest;
+        http:Response inResponse;
+        // Prepare the url path with requested item
+        // Use `untained` keyword since the URL paths are @Sensitive
+        string urlPath = "/items/" + untaint requestedItem;
         if (requestedItem != null) {
-            // Call the busy eCommerce backed(with timeout resiliency) to get item details
-            inResponse =? eCommerceEndpoint -> get("/items/" + requestedItem, outRequest);
+            // Call the busy eCommerce backed(configured with timeout resiliency)
+            inResponse = check eCommerceEndpoint->get(urlPath, request = outRequest);
             // Send the item details back to the client
-            _ = httpConnection -> forward(inResponse);
+            _ = httpConnection->respond(inResponse);
         }
         else {
-            inResponse.setStringPayload("Please enter item as query parameter");
+            inResponse.setTextPayload("Please enter item as query parameter");
             inResponse.statusCode = 400;
-            _ = httpConnection -> respond(inResponse);
+            _ = httpConnection->respond(inResponse);
         }
     }
 }
@@ -151,7 +165,7 @@ The eCommerce backend service is a simple web service that is used to mock a rea
 ```
 This mock eCommerce backend is designed only to respond once for every five requests. The 80% of calls to this eCommerce backend will not get any response.
 
-Please find the implementation of the eCommerce backend service in [https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal](https://github.com/ballerina-guides/resiliency-timeouts/blob/master/guide/ecommerce_backend/ecommerce_backend_service.bal).
+Please find the implementation of the eCommerce backend service [ecommerce_backend_service.bal](guide/ecommerce_backend/ecommerce_backend_service.bal).
 
 ## Testing 
 
@@ -159,11 +173,11 @@ Please find the implementation of the eCommerce backend service in [https://gith
 
 - Run both the product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
 ```bash
-    $  ballerina run src/ecommerce_backend/
+    $  ballerina run guide/ecommerce_backend/
 ```
 
 ```bash
-   $ ballerina run src/product_search/
+   $ ballerina run guide/product_search/
 ```
 
 - Invoke the product_search service by querying an item via the HTTP GET method. 
@@ -179,41 +193,52 @@ Please find the implementation of the eCommerce backend service in [https://gith
    
 ### Writing unit tests 
 
-In Ballerina, the unit test cases should be in the same package inside a `tests` folder. The naming convention should be as follows.
-* Test files should contain _test.bal suffix.
-* Test functions should contain test prefix.
-  * e.g., testProductSearchService()
-
-        
-This guide contains unit test cases in the respective folders. The two test cases are written to test the `product_serach_service` and the `ecommerce_backend_service` service.
-
-To run the unit tests, navigate to src folder inside the sample root directory and run the following command.
-```bash
-$ ballerina test 
+In Ballerina, the unit test cases should be in the same package inside a folder named as 'tests'.  When writing the test functions the below convention should be followed.
+- Test functions should be annotated with `@test:Config`. See the below example.
+```ballerina
+   @test:Config
+   function testProductSearchService() {
 ```
+  
+This guide contains unit test cases for each method available in the 'order_mgt_service' implemented above. 
+
+To run the unit tests, open your terminal and navigate to `resiliency-timeouts/guide`, and run the following command.
+```bash
+$ ballerina test
+```
+To check the implementation of the test file, refer tests folders in the [repository](https://github.com/ballerina-guides/resiliency-timeouts).
 
 ## Deployment
 
 Once you are done with the development, you can deploy the service using any of the methods that are listed below. 
 
 ### Deploying locally
-You can deploy the service that you developed above, in your local environment. You can use the Ballerina executable archive (.balx) archive that you created above and run it in your local environment as follows. 
-
-**Building** 
-Navigate to `SAMPLE_ROOT/src` and run the following commands
-```bash
-    $ ballerina build product_search/
-
-    $ ballerina build ecommerce_backend/
+- As the first step, you can build a Ballerina executable archive (.balx) of the services that we developed above. Navigate to `resiliency-timeouts/guide` and run the following commands. 
+```
+   $ ballerina build ecommerce_backend
+```
+```
+   $ ballerina build product_search
 ```
 
-**Running**
-```bash
-    $ ballerina run product_search.balx
-
-    $ ballerina run ecommerce_backend.balx 
+- Once the balx files are created inside the target folder, you can run the services with the following commands. 
 ```
-   
+   $ ballerina run ecommerce_backend.balx
+```
+```
+   $ ballerina run product_search.balx
+```
+
+- The successful execution of the service will show us the following output. 
+```
+   ballerina: initiating service(s) in 'target/ecommerce_backend.balx'
+   ballerina: started HTTP/WS endpoint 0.0.0.0:9092
+```
+```
+   ballerina: initiating service(s) in 'target/product_search.balx'
+   ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+```
+
 ### Deploying on Docker
 
 You can run the services that we developed above as a docker container. As Ballerina platform offers native support for running ballerina programs on containers, you just need to put the corresponding docker annotations on your service code. 
@@ -234,6 +259,7 @@ import ballerinax/docker;
     tag:"v1.0"
 }
 
+@docker:{Expose}
 endpoint http:ServiceEndpoint productSearchEP {
     port:9090
 };
@@ -364,3 +390,206 @@ Access the service
 ``` 
  curl -X GET http://ballerina.guides.io/products/search?item=TV
 ```
+
+## Observability 
+Ballerina is by default observable. Meaning you can easily observe your services, resources, etc.
+However, observability is disabled by default via configuration. Observability can be enabled by adding following configurations to `ballerina.conf` file in `resilency-timeouts/guide/`.
+
+```ballerina
+[b7a.observability]
+
+[b7a.observability.metrics]
+# Flag to enable Metrics
+enabled=true
+
+[b7a.observability.tracing]
+# Flag to enable Tracing
+enabled=true
+```
+
+NOTE: The above configuration is the minimum configuration needed to enable tracing and metrics. With these configurations default values are load as the other configuration parameters of metrics and tracing.
+
+### Tracing 
+
+You can monitor ballerina services using in built tracing capabilities of Ballerina. We'll use [Jaeger](https://github.com/jaegertracing/jaeger) as the distributed tracing system.
+Follow the following steps to use tracing with Ballerina.
+
+- You can add the following configurations for tracing. Note that these configurations are optional if you already have the basic configuration in `ballerina.conf` as described above.
+```
+   [b7a.observability]
+
+   [b7a.observability.tracing]
+   enabled=true
+   name="jaeger"
+
+   [b7a.observability.tracing.jaeger]
+   reporter.hostname="localhost"
+   reporter.port=5775
+   sampler.param=1.0
+   sampler.type="const"
+   reporter.flush.interval.ms=2000
+   reporter.log.spans=true
+   reporter.max.buffer.spans=1000
+```
+
+- Run Jaeger docker image using the following command
+```bash
+   $ docker run -d -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 \
+   -p14268:14268 jaegertracing/all-in-one:latest
+```
+
+- Navigate to `restful-service/guide` and run the restful-service using following command 
+```
+   $ ballerina run product_search/
+```
+
+- Observe the tracing using Jaeger UI using following URL
+```
+   http://localhost:16686
+```
+
+### Metrics
+Metrics and alerts are built-in with ballerina. We will use Prometheus as the monitoring tool.
+Follow the below steps to set up Prometheus and view metrics for Ballerina restful service.
+
+- You can add the following configurations for metrics. Note that these configurations are optional if you already have the basic configuration in `ballerina.conf` as described under `Observability` section.
+
+```ballerina
+   [b7a.observability.metrics]
+   enabled=true
+   provider="micrometer"
+
+   [b7a.observability.metrics.micrometer]
+   registry.name="prometheus"
+
+   [b7a.observability.metrics.prometheus]
+   port=9700
+   hostname="0.0.0.0"
+   descriptions=false
+   step="PT1M"
+```
+
+- Create a file `prometheus.yml` inside `/tmp/` location. Add the below configurations to the `prometheus.yml` file.
+```
+   global:
+     scrape_interval:     15s
+     evaluation_interval: 15s
+
+   scrape_configs:
+     - job_name: prometheus
+       static_configs:
+         - targets: ['172.17.0.1:9797']
+```
+
+   NOTE : Replace `172.17.0.1` if your local docker IP differs from `172.17.0.1`
+   
+- Run the Prometheus docker image using the following command
+```
+   $ docker run -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
+   prom/prometheus
+```
+   
+- You can access Prometheus at the following URL
+```
+   http://localhost:19090/
+```
+
+NOTE:  Ballerina will by default have following metrics for HTTP server connector. You can enter following expression in Prometheus UI
+-  http_requests_total
+-  http_response_time
+
+
+### Logging
+
+Ballerina has a log package for logging to the console. You can import ballerina/log package and start logging. The following section will describe how to search, analyze, and visualize logs in real time using Elastic Stack.
+
+- Start the Ballerina Service with the following command from `resilency-timeouts/guide`
+```
+   $ nohup ballerina run product_search &>> ballerina.log&
+```
+   NOTE: This will write the console log to the `ballerina.log` file in the `resilency-timeouts/guide` directory
+
+- Start Elasticsearch using the following command
+
+- Start Elasticsearch using the following command
+```
+   $ docker run -p 9200:9200 -p 9300:9300 -it -h elasticsearch --name \
+   elasticsearch docker.elastic.co/elasticsearch/elasticsearch:6.2.2 
+```
+
+   NOTE: Linux users might need to run `sudo sysctl -w vm.max_map_count=262144` to increase `vm.max_map_count` 
+   
+- Start Kibana plugin for data visualization with Elasticsearch
+```
+   $ docker run -p 5601:5601 -h kibana --name kibana --link \
+   elasticsearch:elasticsearch docker.elastic.co/kibana/kibana:6.2.2     
+```
+
+- Configure logstash to format the ballerina logs
+
+i) Create a file named `logstash.conf` with the following content
+```
+input {  
+ beats{ 
+     port => 5044 
+ }  
+}
+
+filter {  
+ grok{  
+     match => { 
+	 "message" => "%{TIMESTAMP_ISO8601:date}%{SPACE}%{WORD:logLevel}%{SPACE}
+	 \[%{GREEDYDATA:package}\]%{SPACE}\-%{SPACE}%{GREEDYDATA:logMessage}"
+     }  
+ }  
+}   
+
+output {  
+ elasticsearch{  
+     hosts => "elasticsearch:9200"  
+     index => "store"  
+     document_type => "store_logs"  
+ }  
+}  
+```
+
+ii) Save the above `logstash.conf` inside a directory named as `{SAMPLE_ROOT}\pipeline`
+     
+iii) Start the logstash container, replace the {SAMPLE_ROOT} with your directory name
+     
+```
+$ docker run -h logstash --name logstash --link elasticsearch:elasticsearch \
+-it --rm -v ~/{SAMPLE_ROOT}/pipeline:/usr/share/logstash/pipeline/ \
+-p 5044:5044 docker.elastic.co/logstash/logstash:6.2.2
+```
+  
+ - Configure filebeat to ship the ballerina logs
+    
+i) Create a file named `filebeat.yml` with the following content
+```
+filebeat.prospectors:
+- type: log
+  paths:
+    - /usr/share/filebeat/ballerina.log
+output.logstash:
+  hosts: ["logstash:5044"]  
+```
+NOTE : Modify the ownership of filebeat.yml file using `$chmod go-w filebeat.yml` 
+
+ii) Save the above `filebeat.yml` inside a directory named as `{SAMPLE_ROOT}\filebeat`   
+        
+iii) Start the logstash container, replace the {SAMPLE_ROOT} with your directory name
+     
+```
+$ docker run -v {SAMPLE_ROOT}/filbeat/filebeat.yml:/usr/share/filebeat/filebeat.yml \
+-v {SAMPLE_ROOT}/guide/product_search/ballerina.log:/usr/share\
+/filebeat/ballerina.log --link logstash:logstash docker.elastic.co/beats/filebeat:6.2.2
+```
+ 
+ - Access Kibana to visualize the logs using following URL
+```
+   http://localhost:5601 
+```
+  
+ 
+
