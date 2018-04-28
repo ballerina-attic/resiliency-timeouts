@@ -43,4 +43,4 @@ script:
 
 # Run tests
 - ballerina test product_search
- ballerina test ecommerce_backend
+- ballerina test ecommerce_backend
