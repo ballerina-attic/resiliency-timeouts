@@ -10,7 +10,7 @@ The following are the sections available in this guide.
 
 - [What you'll build](#what-youll-build)
 - [Prerequisites](#prerequisites)
-- [Developing the service](#developing-the-restful-service-with-retry-and-timeout-resiliency-patterns)
+- [Implementation](#implementation)
 - [Testing](#testing)
 - [Deployment](#deployment)
 - [Observability](#observability)
