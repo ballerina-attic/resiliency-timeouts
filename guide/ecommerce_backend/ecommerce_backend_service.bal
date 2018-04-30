@@ -13,16 +13,13 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
-package ecommerce_backend;
-
-import ballerina/net.http;
+import ballerina/http;
 import ballerina/runtime;
 
 int count = 0;
 
 // Create the endpoint for the ecommerce backend
-endpoint http:ServiceEndpoint eCommerceBackendEP {
+endpoint http:Listener eCommerceBackendEP {
     port:9092
 };
 
@@ -33,24 +30,24 @@ service<http:Service> eCommerceService bind eCommerceBackendEP {
         methods:["GET"],
         path:"/items/{item_id}"
     }
-    findItems (endpoint httpConnection, http:Request request, string item_id) {
+    findItems(endpoint httpConnection, http:Request request, string item_id) {
         count = count + 1;
-        // Mock the busy service by only responding to one request out of five incoming requests
+        // Mock the busy service by only responding to one request out of five requests
         if (count % 5 != 4) {
-            runtime:sleepCurrentWorker(10000);
+            runtime:sleep(10000);
         }
         // Initialize sample item details about the item
         json itemDetails = {
-                               "itemId":item_id,
-                               "brand":"ABC",
-                               "condition":"New",
-                               "itemLocation":"USA",
-                               "marketingPrice":"$100",
-                               "seller":"XYZ"
-                           };
+            "itemId":item_id,
+            "brand":"ABC",
+            "condition":"New",
+            "itemLocation":"USA",
+            "marketingPrice":"$100",
+            "seller":"XYZ"
+        };
 
         // Send the response back with the item details
-        http:Response response = {};
+        http:Response response;
         response.setJsonPayload(itemDetails);
         _ = httpConnection -> respond(response);
     }
