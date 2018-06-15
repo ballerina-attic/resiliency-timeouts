@@ -84,7 +84,7 @@ endpoint http:Client eCommerceEndpoint {
     url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
     timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client
+    // Pass the endpoint timeout and retry configurations while creating the HTTP client
     // Retry configuration should have retry count,
     // time interval between two retires and back off factor
     retryConfig: {
@@ -112,7 +112,7 @@ endpoint http:Client eCommerceEndpoint {
     url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
     timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client.
+    // Pass the endpoint timeout and retry configurations while creating the HTTP client.
     // Retry configuration should have retry count,
     // time interval between two retires and back off factor
     retryConfig: {
