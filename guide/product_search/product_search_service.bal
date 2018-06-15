@@ -51,7 +51,7 @@ endpoint http:Client eCommerceEndpoint {
     url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
     timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client endpoint
+    // Pass the endpoint timeout and retry configurations while creating the http client.
     // Retry configuration should have retry count and the time interval between two retires
     retryConfig: {
         interval: 100,
@@ -80,7 +80,7 @@ service<http:Service> productSearchService bind productSearchEP {
         string urlPath = "/items/" + untaint requestedItem;
         if (requestedItem != null) {
             // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
-            inResponse = check eCommerceEndpoint->get(urlPath, request = outRequest);
+            inResponse = check eCommerceEndpoint->get(urlPath);
             // Send the item details back to the client
             _ = httpConnection->respond(inResponse);
         }
