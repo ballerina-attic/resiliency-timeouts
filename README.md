@@ -84,7 +84,7 @@ endpoint http:Client eCommerceEndpoint {
     url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
     timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client
+    // Pass the endpoint timeout and retry configurations while creating the HTTP client
     // Retry configuration should have retry count,
     // time interval between two retires and back off factor
     retryConfig: {
@@ -112,7 +112,7 @@ endpoint http:Client eCommerceEndpoint {
     url: "http://localhost:9092/browse",
     // End point timeout should be in milliseconds
     timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client
+    // Pass the endpoint timeout and retry configurations while creating the HTTP client.
     // Retry configuration should have retry count,
     // time interval between two retires and back off factor
     retryConfig: {
@@ -141,8 +141,8 @@ service<http:Service> productSearchService bind productSearchEP {
         // Use `untained` keyword since the URL paths are @Sensitive
         string urlPath = "/items/" + untaint requestedItem;
         if (requestedItem != null) {
-            // Call the busy eCommerce backed(configured with timeout resiliency)
-            inResponse = check eCommerceEndpoint->get(urlPath, request = outRequest);
+            // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
+            inResponse = check eCommerceEndpoint->get(urlPath);
             // Send the item details back to the client
             _ = httpConnection->respond(inResponse);
         }
@@ -160,7 +160,7 @@ service<http:Service> productSearchService bind productSearchEP {
 The eCommerce backend service is a simple web service that is used to mock a real world eCommerce web service. This service sends the following JSON message with the item details. 
 
 ```json
-{"itemId":"item_id", "brand":"ABC", "condition":"New","itemLocation":"USA",
+{"itemId":"TV", "brand":"ABC", "condition":"New","itemLocation":"USA",
 "marketingPrice":"$100", "seller":"XYZ"};
 ```
 This mock eCommerce backend is designed only to respond once for every five requests. The 80% of calls to this eCommerce backend will not get any response.
@@ -173,11 +173,11 @@ Please find the implementation of the eCommerce backend service [ecommerce_backe
 
 - Run both the product_search service and the ecommerce_backend service by entering the following commands in sperate terminals from the sample root directory.
 ```bash
-    $  ballerina run guide/ecommerce_backend/
+   $  ballerina run ecommerce_backend/
 ```
 
 ```bash
-   $ ballerina run guide/product_search/
+   $ ballerina run product_search/
 ```
 
 - Invoke the product_search service by querying an item via the HTTP GET method. 
@@ -200,7 +200,7 @@ In Ballerina, the unit test cases should be in the same package inside a folder 
    function testProductSearchService() {
 ```
   
-This guide contains unit test cases for each method available in the 'order_mgt_service' implemented above. 
+This guide contains unit test cases for each method available in the 'product_search' implemented above. 
 
 To run the unit tests, open your terminal and navigate to `resiliency-timeouts/guide`, and run the following command.
 ```bash
@@ -223,10 +223,10 @@ Once you are done with the development, you can deploy the service using any of 
 
 - Once the balx files are created inside the target folder, you can run the services with the following commands. 
 ```
-   $ ballerina run ecommerce_backend.balx
+   $ ballerina run target/ecommerce_backend.balx
 ```
 ```
-   $ ballerina run product_search.balx
+   $ ballerina run target/product_search.balx
 ```
 
 - The successful execution of the service will show us the following output. 
