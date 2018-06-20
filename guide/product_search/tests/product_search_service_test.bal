@@ -44,7 +44,7 @@ function testProductSearchService() {
 
     // Test the searchProducts resource
     // Send a request to service
-    resp = check httpEndpoint->get("/search?item=TV", request = req);
+    resp = check httpEndpoint->get("/search?item=TV");
 
     int expectedResult = 500;
 

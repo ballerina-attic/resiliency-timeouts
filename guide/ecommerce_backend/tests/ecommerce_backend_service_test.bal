@@ -46,7 +46,7 @@ function testeCommerceBackendService() {
     // Test the findItems resource
     // Send 4 requests to service and get the response and test with expected behaviour
     // Send the request to ecommerce backend for the 1st time
-    var result1 = httpEndpoint->get("/items/TV", request = req);
+    var result1 = httpEndpoint->get("/items/TV");
     match result1 {
         http:Response outResponse => {
             return;
@@ -58,7 +58,7 @@ function testeCommerceBackendService() {
     }
     // Send the request to ecommerce backend for the 2nd time
     req = new;
-    var result2 = httpEndpoint->get("/items/TV", request = req);
+    var result2 = httpEndpoint->get("/items/TV");
     match result2 {
         http:Response outResponse => {
             return;
@@ -70,7 +70,7 @@ function testeCommerceBackendService() {
     }
     // Send the request to ecommerce backend for the 3rd time
     req = new;
-    var result3 = httpEndpoint->get("/items/TV", request = req);
+    var result3 = httpEndpoint->get("/items/TV");
     match result3 {
         http:Response outResponse => {
             return;
@@ -82,7 +82,7 @@ function testeCommerceBackendService() {
     }
     // Send the request to ecommerce backend for the 4th time
     req = new;
-    var result4 = httpEndpoint->get("/items/TV", request = req);
+    var result4 = httpEndpoint->get("/items/TV");
     match result4 {
         http:Response outResponse => {
             // Test the responses from the service with the original test data
