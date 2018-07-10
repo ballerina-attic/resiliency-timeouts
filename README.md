@@ -259,8 +259,8 @@ import ballerinax/docker;
     tag:"v1.0"
 }
 
-@docker:{Expose}
-endpoint http:ServiceEndpoint productSearchEP {
+@docker:Expose{}
+endpoint http:Listener productSearchEP {
     port:9090
 };
 

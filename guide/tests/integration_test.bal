@@ -41,12 +41,11 @@ function afterFunction() {
 function testProductSearchService() {
 
     // Initialize the empty http request and response
-    http:Request req = new;
     http:Response resp = new;
 
     // Test the searchProducts resource
     // Send a request to service
-    resp = check httpEndpoint->get("/search?item=TV", request = req);
+    resp = check httpEndpoint->get("/search?item=TV");
 
     int expectedResultCode = 200;
 
