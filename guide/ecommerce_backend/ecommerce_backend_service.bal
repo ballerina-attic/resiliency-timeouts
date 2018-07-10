@@ -48,7 +48,7 @@ service<http:Service> eCommerceService bind eCommerceBackendEP {
 
         // Send the response back with the item details
         http:Response response;
-        response.setJsonPayload(itemDetails);
+        response.setJsonPayload(untaint itemDetails);
         _ = httpConnection -> respond(response);
     }
 }
