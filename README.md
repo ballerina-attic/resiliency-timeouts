@@ -19,7 +19,7 @@ The following are the sections available in this guide.
 
 You’ll build a web service that calls a potentially busy remote backend (responds only to few requests). The service incorporates both retry and timeout resiliency patterns to call the remote backend. For better understanding, this is mapped with a real-world scenario of an eCommerce product search service. 
 
-The eCommerce product search service uses a potentially busy remote eCommerce backend to obtain details about products. When an item is searched from the eCommerce product search service it calls the eCommerce backend to get the item details. The eCommerce backend is typically busy and might not respond to all the requests. The retry and timeout patterns will help to get the response from the busy eCommerce backend.
+The eCommerce product search service uses a potentially busy remote eCommerce backend to obtain details about products. When an item is searched from the eCommerce product search service, it calls the eCommerce backend to get the item details. The eCommerce backend is typically busy and might not respond to all the requests. The retry and timeout patterns will help to get the response from the busy eCommerce backend.
 
 
 ![alt text](/images/resiliency-timeouts.svg)
@@ -27,7 +27,7 @@ The eCommerce product search service uses a potentially busy remote eCommerce ba
 
 **Search item on eCommerce stores**: To search and find the details about items, you can use an HTTP GET message that contains item details as query parameters.
 
-The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, these third-party services are also written in Ballerina.
+The eCommerce backend is not necessarily a Ballerina service and can theoretically be a third-party service that the eCommerve product search service calls to get things done. However, for the purposes of setting up this scenario and illustrating it in this guide, this third-party service is also written in Ballerina.
 
 ## Prerequisites
  
@@ -241,10 +241,10 @@ Once you are done with the development, you can deploy the service using any of 
 
 ### Deploying on Docker
 
-You can run the services that we developed above as a docker container. As Ballerina platform offers native support for running ballerina programs on containers, you just need to put the corresponding docker annotations on your service code. 
-Let's see how we can deploy the product_search_service we developed above on docker. 
+You can run the services that we developed above as a Docker container. As Ballerina platform offers native support for running ballerina programs on containers, you just need to put the corresponding Docker annotations on your service code.
+Let's see how we can deploy the product_search_service we developed above on Docker.
 
-- In our product_search_service, we need to import  `` import ballerinax/docker; `` and use the annotation `` @docker:Config `` as shown below to enable docker image generation during the build time. 
+- In our product_search_service, we need to import  `` import ballerinax/docker; `` and use the annotation `` @docker:Config `` as shown below to enable Docker image generation during the build time.
 
 ##### product_search_service.bal
 ```ballerina
@@ -271,7 +271,7 @@ service<http:Service> productSearchService bind productSearchEP {
 ``` 
 
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
-This will also create the corresponding docker image using the docker annotations that you have configured above. Navigate to the `<SAMPLE_ROOT>/src/` folder and run the following command.  
+This will also create the corresponding Docker image using the Docker annotations that you have configured above. Navigate to the `<SAMPLE_ROOT>/src/` folder and run the following command.
   
 ```
   $ballerina build product_search
@@ -279,15 +279,15 @@ This will also create the corresponding docker image using the docker annotation
   Run following command to start docker container: 
   docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
 ```
-- Once you successfully build the docker image, you can run it with the `` docker run`` command that is shown in the previous step.  
+- Once you successfully build the Docker image, you can run it with the `` docker run`` command that is shown in the previous step.
 
 ```   
     docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
 ```
 
-   Here we run the docker image with flag`` -p <host_port>:<container_port>`` so that we use the host port 9090 and the container port 9090. Therefore you can access the service through the host port. 
+   Here we run the Docker image with flag`` -p <host_port>:<container_port>`` so that we use the host port 9090 and the container port 9090. Therefore you can access the service through the host port.
 
-- Verify docker container is running with the use of `` $ docker ps``. The status of the docker container should be shown as 'Up'. 
+- Verify Docker container is running with the use of `` $ docker ps``. The status of the Docker container should be shown as 'Up'.
 - You can access the service using the same curl commands that we've used above. 
  
 ```
@@ -298,8 +298,8 @@ This will also create the corresponding docker image using the docker annotation
 ### Deploying on Kubernetes
 
 - You can run the services that we developed above, on Kubernetes. The Ballerina language offers native support for running a ballerina programs on Kubernetes, 
-with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the docker images. 
-So you don't need to explicitly create docker images prior to deploying it on Kubernetes.   
+with the use of Kubernetes annotations that you can include as part of your service code. Also, it will take care of the creation of the Docker images.
+So you don't need to explicitly create Docker images prior to deploying it on Kubernetes.
 Let's see how we can deploy the product_search_service we developed above on kubernetes.
 
 - We need to import `` import ballerinax/kubernetes; `` and use `` @kubernetes `` annotations as shown below to enable kubernetes deployment for the service we developed above. 
@@ -338,12 +338,12 @@ endpoint http:ServiceEndpoint productSearchEP {
 service<http:Service> productSearchService bind productSearchEP {  
 ``` 
 
-- Here we have used ``  @kubernetes:Deployment `` to specify the docker image name which will be created as part of building this service. 
+- Here we have used ``  @kubernetes:Deployment `` to specify the Docker image name which will be created as part of building this service.
 - We have also specified `` @kubernetes:Service {} `` so that it will create a Kubernetes service which will expose the Ballerina service that is running on a Pod.  
 - In addition we have used `` @kubernetes:Ingress `` which is the external interface to access your service (with path `` /`` and host name ``ballerina.guides.io``)
 
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
-This will also create the corresponding docker image and the Kubernetes artifacts using the Kubernetes annotations that you have configured above.
+This will also create the corresponding Docker image and the Kubernetes artifacts using the Kubernetes annotations that you have configured above.
   
 ```
   $ballerina build product_search
@@ -352,7 +352,7 @@ This will also create the corresponding docker image and the Kubernetes artifact
   kubectl apply -f ./target/product_search/kubernetes
 ```
 
-- You can verify that the docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker ps images ``. 
+- You can verify that the Docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker ps images ``.
 - Also the Kubernetes artifacts related our service, will be generated in `` ./target/product_search/kubernetes``. 
 - Now you can create the Kubernetes deployment using:
 
@@ -432,7 +432,7 @@ Follow the following steps to use tracing with Ballerina.
    reporter.max.buffer.spans=1000
 ```
 
-- Run Jaeger docker image using the following command
+- Run Jaeger Docker image using the following command
 ```bash
    $ docker run -d -p5775:5775/udp -p6831:6831/udp -p6832:6832/udp -p5778:5778 -p16686:16686 \
    -p14268:14268 jaegertracing/all-in-one:latest
@@ -481,9 +481,9 @@ Follow the below steps to set up Prometheus and view metrics for Ballerina restf
          - targets: ['172.17.0.1:9797']
 ```
 
-   NOTE : Replace `172.17.0.1` if your local docker IP differs from `172.17.0.1`
+   NOTE : Replace `172.17.0.1` if your local Docker IP differs from `172.17.0.1`
    
-- Run the Prometheus docker image using the following command
+- Run the Prometheus Docker image using the following command
 ```
    $ docker run -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
    prom/prometheus
