@@ -22,18 +22,12 @@ endpoint http:Client httpEndpoint {
     timeoutMillis: 1000
 };
 
-function beforeFunction() {
-    // Start eCommerce backend service
-    _ = test:startServices("ecommerce_backend");
-}
-
 function afterFunction() {
     // Start eCommerce backend service
     test:stopServices("ecommerce_backend");
 }
 
 @test:Config {
-    before: "beforeFunction",
     after: "afterFunction"
 }
 function testeCommerceBackendService() {
