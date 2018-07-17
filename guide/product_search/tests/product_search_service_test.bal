@@ -23,19 +23,7 @@ endpoint http:Client httpEndpoint {
     timeoutMillis: 10000
 };
 
-function beforeFunction() {
-    // Start eCommerce backend service
-    _ = test:startServices("product_search");
-}
-function afterFunction() {
-    // Start eCommerce backend service
-    test:stopServices("product_search");
-}
-
-@test:Config {
-    before: "beforeFunction",
-    after: "afterFunction"
-}
+@test:Config
 function testProductSearchService() {
 
     // Initialize the empty http request and response
