@@ -231,11 +231,11 @@ Once you are done with the development, you can deploy the service using any of 
 
 - The successful execution of the service will show us the following output. 
 ```
-   ballerina: initiating service(s) in 'target/ecommerce_backend.balx'
+   Initiating service(s) in 'target/ecommerce_backend.balx'
    ballerina: started HTTP/WS endpoint 0.0.0.0:9092
 ```
 ```
-   ballerina: initiating service(s) in 'target/product_search.balx'
+   Initiating service(s) in 'target/product_search.balx'
    ballerina: started HTTP/WS endpoint 0.0.0.0:9090
 ```
 
@@ -254,14 +254,14 @@ import ballerina/http;
 import ballerinax/docker;
 
 @docker:Config {
-    registry:"ballerina.guides.io",
-    name:"product_search_service",
-    tag:"v1.0"
+    registry: "ballerina.guides.io",
+    name: "product_search_service",
+    tag: "v1.0"
 }
 
 @docker:Expose{}
 endpoint http:Listener productSearchEP {
-    port:9090
+    port: 9090
 };
 
 // http:ClientEndpoint definition for the remote eCommerce endpoint
@@ -315,23 +315,23 @@ import ballerina/http;
 import ballerinax/kubernetes;
 
 @kubernetes:Ingress {
-    hostname:"ballerina.guides.io",
-    name:"ballerina-guides-product-search-service",
-    path:"/"
+    hostname: "ballerina.guides.io",
+    name: "ballerina-guides-product-search-service",
+    path: "/"
 }
 
 @kubernetes:Service {
-    serviceType:"NodePort",
-    name:"ballerina-guides-product-search-service"
+    serviceType: "NodePort",
+    name: "ballerina-guides-product-search-service"
 }
 
 @kubernetes:Deployment {
-    image:"ballerina.guides.io/product_search_service:v1.0",
-    name:"ballerina-guides-product-search-service"
+    image: "ballerina.guides.io/product_search_service:v1.0",
+    name: "ballerina-guides-product-search-service"
 }
 
 endpoint http:ServiceEndpoint productSearchEP {
-    port:9090
+    port: 9090
 };
 
 // http:ClientEndpoint definition for the remote eCommerce endpoint

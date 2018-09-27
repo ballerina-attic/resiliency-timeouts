@@ -20,15 +20,15 @@ int count = 0;
 
 // Create the endpoint for the ecommerce backend
 endpoint http:Listener eCommerceBackendEP {
-    port:9092
+    port: 9092
 };
 
-@http:ServiceConfig {basePath:"/browse"}
+@http:ServiceConfig { basePath: "/browse" }
 service<http:Service> eCommerceService bind eCommerceBackendEP {
 
     @http:ResourceConfig {
-        methods:["GET"],
-        path:"/items/{item_id}"
+        methods: ["GET"],
+        path: "/items/{item_id}"
     }
     findItems(endpoint httpConnection, http:Request request, string item_id) {
         count = count + 1;
@@ -38,17 +38,17 @@ service<http:Service> eCommerceService bind eCommerceBackendEP {
         }
         // Initialize sample item details about the item
         json itemDetails = {
-            "itemId":item_id,
-            "brand":"ABC",
-            "condition":"New",
-            "itemLocation":"USA",
-            "marketingPrice":"$100",
-            "seller":"XYZ"
+            "itemId": item_id,
+            "brand": "ABC",
+            "condition": "New",
+            "itemLocation": "USA",
+            "marketingPrice": "$100",
+            "seller": "XYZ"
         };
 
         // Send the response back with the item details
         http:Response response;
         response.setJsonPayload(untaint itemDetails);
-        _ = httpConnection -> respond(response);
+        _ = httpConnection->respond(response);
     }
 }
