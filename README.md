@@ -355,7 +355,7 @@ This will also create the corresponding Docker image and the Kubernetes artifact
    $ ballerina build product_search
   
    Run following command to deploy kubernetes artifacts:  
-   $ kubectl apply -f ./target/product_search/kubernetes
+   $ kubectl apply -f ./target/kubernetes/product_search
 ```
 
 - You can verify that the Docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker ps images ``.
@@ -370,11 +370,11 @@ This will also create the corresponding Docker image and the Kubernetes artifact
 ```
 
 - You can verify Kubernetes deployment, service and ingress are running properly, by using following Kubernetes commands. 
-```
-$kubectl get service
-$kubectl get deploy
-$kubectl get pods
-$kubectl get ingress
+```bash
+   $ kubectl get service
+   $ kubectl get deploy
+   $ kubectl get pods
+   $ kubectl get ingress
 ```
 
 - If everything is successfully deployed, you can invoke the service either via Node port or ingress. 
@@ -458,7 +458,7 @@ Follow the following steps to use tracing with Ballerina.
 
 - Observe the tracing using Jaeger UI using following URL
 ```
-   http://localhost:16686
+http://localhost:16686
 ```
 
 ### Metrics
@@ -504,7 +504,7 @@ Follow the below steps to set up Prometheus and view metrics for Ballerina restf
    
 - You can access Prometheus at the following URL
 ```
-   http://localhost:19090/
+http://localhost:19090/
 ```
 
 NOTE:  Ballerina will by default have following metrics for HTTP server connector. You can enter following expression in Prometheus UI
