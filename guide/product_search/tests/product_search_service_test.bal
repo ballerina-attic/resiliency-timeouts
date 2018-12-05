@@ -18,24 +18,29 @@ import ballerina/http;
 import ballerina/test;
 import ballerina/io;
 
-endpoint http:Client httpEndpoint {
-    url: "http://localhost:9090/products",
-    timeoutMillis: 10000
-};
+http:Client httpEndpoint = new("http://localhost:9090/products", config = { timeoutMillis: 10000 });
 
 @test:Config
 function testProductSearchService() {
-
-    // Initialize the empty http request and response
-    http:Request req = new;
-    http:Response resp = new;
-
     // Test the searchProducts resource
     // Send a request to service
-    resp = check httpEndpoint->get("/search?item=TV");
-
-    int expectedResult = 500;
-
-    test:assertEquals(resp.statusCode, expectedResult, msg = "backend error code did not
-    match");
+    var result = httpEndpoint->get("/search?item=TV");
+    if (result is http:Response) {
+        int expectedResult = 200;
+        test:assertEquals(result.statusCode, expectedResult, msg = "backend status code did not match");
+        json expectedJson = { "itemId": "TV", "brand": "ABC", "condition": "New",
+            "itemLocation": "USA",
+            "marketingPrice": "$100",
+            "seller": "XYZ" };
+        var receivedJson = result.getJsonPayload();
+        if (receivedJson is json) {
+            // Assert the response message JSON payload
+            test:assertEquals(receivedJson, expectedJson,
+                msg = "Item details of the eCommerce service did not match with expected results");
+        } else {
+            test:assertFail(msg = "An error occured while retrieving the Json payload");
+        }
+    } else {
+        test:assertFail(msg = "An error occured while execute the GET");
+    }
 }

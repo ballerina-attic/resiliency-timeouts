@@ -17,18 +17,9 @@
 import ballerina/http;
 import ballerina/test;
 
-endpoint http:Client httpEndpoint {
-    url: "http://localhost:9092/browse",
-    timeoutMillis: 1000
-};
-
-function afterFunction() {
-    // Start eCommerce backend service
-    test:stopServices("ecommerce_backend");
-}
+http:Client httpEndpoint = new("http://localhost:9092/browse", config = { timeoutMillis: 2000 });
 
 @test:Config {
-    after: "afterFunction"
 }
 function testeCommerceBackendService() {
     // Error message if server respond with 504 error
@@ -41,61 +32,48 @@ function testeCommerceBackendService() {
     // Send 4 requests to service and get the response and test with expected behaviour
     // Send the request to ecommerce backend for the 1st time
     var result1 = httpEndpoint->get("/items/TV");
-    match result1 {
-        http:Response outResponse => {
-            return;
-        }
-        error err => {
-            test:assertEquals(err.message, ERROR_MGS, msg = "eCommerce endpoint didnot respond with 504 server error
-            signal");
-        }
+    if (result1 is http:Response) {
+        return;
+    } else {
+        test:assertEquals(<string>result1.detail().message, ERROR_MGS,
+            msg = "eCommerce endpoint didnot respond with 504 server error signal");
     }
     // Send the request to ecommerce backend for the 2nd time
     req = new;
     var result2 = httpEndpoint->get("/items/TV");
-    match result2 {
-        http:Response outResponse => {
-            return;
-        }
-        error err => {
-            test:assertEquals(err.message, ERROR_MGS, msg =
-                "eCommerce endpoint didnot respond with 504 server error signal");
-        }
+    if (result2 is http:Response) {
+        return;
+    } else {
+        test:assertEquals(<string>result2.detail().message, ERROR_MGS,
+            msg = "eCommerce endpoint didnot respond with 504 server error signal");
     }
     // Send the request to ecommerce backend for the 3rd time
     req = new;
     var result3 = httpEndpoint->get("/items/TV");
-    match result3 {
-        http:Response outResponse => {
-            return;
-        }
-        error err => {
-            test:assertEquals(err.message, ERROR_MGS, msg =
-                "eCommerce endpoint didnot respond with 504 server error signal");
-        }
+    if (result3 is http:Response) {
+        return;
+    } else {
+        test:assertEquals(<string>result3.detail().message, ERROR_MGS,
+            msg = "eCommerce endpoint didnot respond with 504 server error signal");
     }
     // Send the request to ecommerce backend for the 4th time
     req = new;
     var result4 = httpEndpoint->get("/items/TV");
-    match result4 {
-        http:Response outResponse => {
-            // Test the responses from the service with the original test data
-            test:assertEquals(outResponse.statusCode, 200, msg = "eCommerce endpoint didnot respond with 200 OK
-            signal");
-
-            json expectedJson = { "itemId": "TV", "brand": "ABC", "condition": "New",
-                "itemLocation": "USA",
-                "marketingPrice": "$100",
-                "seller": "XYZ" };
-            json receivedJson = check outResponse.getJsonPayload();
+    if (result4 is http:Response) {
+        test:assertEquals(result4.statusCode, 200, msg = "eCommerce endpoint didnot respond with 200 OK signal");
+        json expectedJson = { "itemId": "TV", "brand": "ABC", "condition": "New",
+            "itemLocation": "USA",
+            "marketingPrice": "$100",
+            "seller": "XYZ" };
+        var receivedJson = result4.getJsonPayload();
+        if (receivedJson is json) {
             // Assert the response message JSON payload
             test:assertEquals(receivedJson, expectedJson,
-                msg =
-                "Item details of the eCommerce service did not match with expected results"
-            );
+                msg = "Item details of the eCommerce service did not match with expected results");
+        } else {
+            test:assertFail(msg = "An error occured while retrieving the Json payload");
         }
-        error err => {
-            return;
-        }
+    } else {
+        return;
     }
 }
