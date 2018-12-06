@@ -135,15 +135,16 @@ service productSearchService on productSearchEP {
             // Prepare the url path with requested item
             // Use `untained` keyword since the URL paths are @Sensitive
             string urlPath = "/items/" + untaint requestedItem;
-            // Call the busy eCommerce backed(configured with timeout resiliency)
+            // Call the busy eCommerce backend(configured with timeout resiliency)
             // to get item details
             var endpointResponse = eCommerceEndpoint->get(urlPath);
             if (endpointResponse is http:Response) {
                 // Send the item details back to the client
                 var result = caller->respond(endpointResponse);
                 handleError(result);
-            } else {                
-                string errorMsg = <string>endpointResponse.detail().message;
+            } else {   
+                log:printError(endpointResponse.reason(), err = endpointResponse);             
+                string errorMsg = "Backend service unavailable";
                 inResponse.setTextPayload(errorMsg);
                 inResponse.statusCode = 400;
                 var result = caller->respond(inResponse);
