@@ -281,7 +281,7 @@ listener http:Listener productSearchEP = new(9090);
 
 // Initialize the remote eCommerce endpoint
 
-@http:ServiceConfig {basePath:"/products"}
+@http:ServiceConfig {basePath: "/products"}
 service productSearchService on productSearchEP {
 ``` 
 
@@ -349,7 +349,7 @@ listener http:Listener productSearchEP = new(9090);;
 
 // Initialize the remote eCommerce endpoint
 
-@http:ServiceConfig {basePath:"/products"}
+@http:ServiceConfig {basePath: "/products"}
 service productSearchService on productSearchEP {  
 ``` 
 

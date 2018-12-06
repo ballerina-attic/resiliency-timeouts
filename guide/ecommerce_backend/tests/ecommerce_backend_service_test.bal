@@ -19,8 +19,7 @@ import ballerina/test;
 
 http:Client httpEndpoint = new("http://localhost:9092/browse", config = { timeoutMillis: 2000 });
 
-@test:Config {
-}
+@test:Config
 function testeCommerceBackendService() {
     // Error message if server respond with 504 error
     string ERROR_MGS = "Idle timeout triggered before initiating inbound response";
