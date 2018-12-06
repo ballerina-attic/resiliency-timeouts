@@ -192,7 +192,7 @@ Please find the implementation of the eCommerce backend service [ecommerce_backe
 
 - Invoke the product_search service by querying an item via the HTTP GET method. 
 ``` bash
-    curl localhost:9090/products/search?item=TV
+    $ curl localhost:9090/products/search?item=TV
 ``` 
    The eCommerce product search service should finally respond after several internal timeouts and retires with the following JSON message.
    
@@ -221,7 +221,7 @@ This guide contains unit test cases for each method available in the 'product_se
 
 To run the unit tests, open your terminal and navigate to `resiliency-timeouts/guide`, and run the following command.
 ```bash
-$ ballerina test
+   $ ballerina test
 ```
 To check the implementation of the test file, refer tests folders in the [repository](https://github.com/ballerina-guides/resiliency-timeouts).
 
@@ -231,18 +231,18 @@ Once you are done with the development, you can deploy the service using any of 
 
 ### Deploying locally
 - As the first step, you can build a Ballerina executable archive (.balx) of the services that we developed above. Navigate to `resiliency-timeouts/guide` and run the following commands. 
-```
+```bash
    $ ballerina build ecommerce_backend
 ```
-```
+```bash
    $ ballerina build product_search
 ```
 
 - Once the balx files are created inside the target folder, you can run the services with the following commands. 
-```
+```bash
    $ ballerina run target/ecommerce_backend.balx
 ```
-```
+```bash
    $ ballerina run target/product_search.balx
 ```
 
@@ -288,16 +288,16 @@ service productSearchService on productSearchEP {
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
 This will also create the corresponding Docker image using the Docker annotations that you have configured above. Navigate to the `<SAMPLE_ROOT>/src/` folder and run the following command.
   
-```
-  $ballerina build product_search
+```bash
+   $ ballerina build product_search
   
-  Run following command to start docker container: 
-  docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
+   Run following command to start docker container: 
+   $ docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
 ```
 - Once you successfully build the Docker image, you can run it with the `` docker run`` command that is shown in the previous step.
 
-```   
-    docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
+```bash 
+   $ docker run -d -p 9090:9090 ballerina.guides.io/product_search_service:v1.0
 ```
 
    Here we run the Docker image with flag`` -p <host_port>:<container_port>`` so that we use the host port 9090 and the container port 9090. Therefore you can access the service through the host port.
@@ -305,8 +305,8 @@ This will also create the corresponding Docker image using the Docker annotation
 - Verify Docker container is running with the use of `` $ docker ps``. The status of the Docker container should be shown as 'Up'.
 - You can access the service using the same curl commands that we've used above. 
  
-```
-   curl -X GET http://localhost:9090/products/search?item=TV
+```bash
+   $ curl -X GET http://localhost:9090/products/search?item=TV
 ```
 
 
@@ -364,38 +364,38 @@ If you are using Minikube, you need to set a couple of additional attributes to 
 - Now you can build a Ballerina executable archive (.balx) of the service that we developed above, using the following command. It points to the service file that we developed above and it will create an executable binary out of that. 
 This will also create the corresponding Docker image and the Kubernetes artifacts using the Kubernetes annotations that you have configured above.
   
-```
-  $ballerina build product_search
+```bash
+   $ ballerina build product_search
   
-  Run following command to deploy kubernetes artifacts:  
-  kubectl apply -f ./target/product_search/kubernetes
+   Run following command to deploy kubernetes artifacts:  
+   $ kubectl apply -f ./target/kubernetes/product_search
 ```
 
 - You can verify that the Docker image that we specified in `` @kubernetes:Deployment `` is created, by using `` docker ps images ``.
 - Also the Kubernetes artifacts related our service, will be generated in `` ./target/product_search/kubernetes``. 
 - Now you can create the Kubernetes deployment using:
 
-```
- $ kubectl apply -f ./target/product_search/kubernetes 
+```bash
+   $ kubectl apply -f ./target/product_search/kubernetes 
    deployment.extensions "ballerina-guides-product-search-service" created
    ingress.extensions "ballerina-guides-product-search-service" created
    service "ballerina-guides-product-search-service" created
 ```
 
 - You can verify Kubernetes deployment, service and ingress are running properly, by using following Kubernetes commands. 
-```
-$kubectl get service
-$kubectl get deploy
-$kubectl get pods
-$kubectl get ingress
+```bash
+   $ kubectl get service
+   $ kubectl get deploy
+   $ kubectl get pods
+   $ kubectl get ingress
 ```
 
 - If everything is successfully deployed, you can invoke the service either via Node port or ingress. 
 
 Node Port:
  
-```
- curl -X GET http://<Minikube_host_IP>:<Node_Port>/products/search?item=TV
+```bash
+   $ curl -X GET http://<Minikube_host_IP>:<Node_Port>/products/search?item=TV
 ```
 If you are using Minikube, you should use the IP address of the Minikube cluster obtained by running the `minikube ip` command. The port should be the node port given when running the `kubectl get services` command.
 
@@ -408,8 +408,8 @@ Add `/etc/hosts` entry to match hostname. For Minikube, the IP address should be
 
 Access the service 
 
-``` 
- curl -X GET http://ballerina.guides.io/products/search?item=TV
+```bash
+   $ curl -X GET http://ballerina.guides.io/products/search?item=TV
 ```
 
 ## Observability 
@@ -430,7 +430,7 @@ enabled=true
 
 To start the ballerina service using the configuration file, run the following command
 
-```
+```bash
    $ ballerina run --config product_search/ballerina.conf product_search/
 ```
 NOTE: The above configuration is the minimum configuration needed to enable tracing and metrics. With these configurations default values are load as the other configuration parameters of metrics and tracing.
@@ -465,13 +465,13 @@ Follow the following steps to use tracing with Ballerina.
 ```
 
 - Navigate to `restful-service/guide` and run the restful-service using the following command
-```
+```bash
    $ ballerina run --config product_search/ballerina.conf product_search/
 ```
 
 - Observe the tracing using Jaeger UI using following URL
 ```
-   http://localhost:16686
+http://localhost:16686
 ```
 
 ### Metrics
@@ -505,19 +505,19 @@ Follow the below steps to set up Prometheus and view metrics for Ballerina restf
    NOTE : Replace `172.17.0.1` if your local Docker IP differs from `172.17.0.1`
    
 - Run the Prometheus Docker image using the following command
-```
+```bash
    $ docker run -p 19090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml \
    prom/prometheus
 ```
 
 - Navigate to `restful-service/guide` and run the restful-service using the following command
-```
+```bash
    $ ballerina run --config product_search/ballerina.conf product_search/
 ```
    
 - You can access Prometheus at the following URL
 ```
-   http://localhost:19090/
+http://localhost:19090/
 ```
 
 NOTE:  Ballerina will by default have following metrics for HTTP server connector. You can enter following expression in Prometheus UI
@@ -530,7 +530,7 @@ NOTE:  Ballerina will by default have following metrics for HTTP server connecto
 Ballerina has a log package for logging to the console. You can import ballerina/log package and start logging. The following section will describe how to search, analyze, and visualize logs in real time using Elastic Stack.
 
 - Start the Ballerina Service with the following command from `resilency-timeouts/guide`
-```
+```bash
    $ nohup ballerina run product_search &>> ballerina.log&
 ```
    NOTE: This will write the console log to the `ballerina.log` file in the `resilency-timeouts/guide` directory
@@ -538,7 +538,7 @@ Ballerina has a log package for logging to the console. You can import ballerina
 - Start Elasticsearch using the following command
 
 - Start Elasticsearch using the following command
-```
+```bash
    $ docker run -p 9200:9200 -p 9300:9300 -it -h elasticsearch --name \
    elasticsearch docker.elastic.co/elasticsearch/elasticsearch:6.2.2 
 ```
@@ -546,7 +546,7 @@ Ballerina has a log package for logging to the console. You can import ballerina
    NOTE: Linux users might need to run `sudo sysctl -w vm.max_map_count=262144` to increase `vm.max_map_count` 
    
 - Start Kibana plugin for data visualization with Elasticsearch
-```
+```bash
    $ docker run -p 5601:5601 -h kibana --name kibana --link \
    elasticsearch:elasticsearch docker.elastic.co/kibana/kibana:6.2.2     
 ```
@@ -583,10 +583,10 @@ ii) Save the above `logstash.conf` inside a directory named as `{SAMPLE_ROOT}\pi
      
 iii) Start the logstash container, replace the {SAMPLE_ROOT} with your directory name
      
-```
-$ docker run -h logstash --name logstash --link elasticsearch:elasticsearch \
--it --rm -v ~/{SAMPLE_ROOT}/pipeline:/usr/share/logstash/pipeline/ \
--p 5044:5044 docker.elastic.co/logstash/logstash:6.2.2
+```bash
+   $ docker run -h logstash --name logstash --link elasticsearch:elasticsearch \
+    -it --rm -v ~/{SAMPLE_ROOT}/pipeline:/usr/share/logstash/pipeline/ \
+    -p 5044:5044 docker.elastic.co/logstash/logstash:6.2.2
 ```
   
  - Configure filebeat to ship the ballerina logs
@@ -606,10 +606,10 @@ ii) Save the above `filebeat.yml` inside a directory named as `{SAMPLE_ROOT}\fil
         
 iii) Start the logstash container, replace the {SAMPLE_ROOT} with your directory name
      
-```
-$ docker run -v {SAMPLE_ROOT}/filbeat/filebeat.yml:/usr/share/filebeat/filebeat.yml \
--v {SAMPLE_ROOT}/guide/product_search/ballerina.log:/usr/share\
-/filebeat/ballerina.log --link logstash:logstash docker.elastic.co/beats/filebeat:6.2.2
+```bash
+   $ docker run -v {SAMPLE_ROOT}/filbeat/filebeat.yml:/usr/share/filebeat/filebeat.yml \
+   -v {SAMPLE_ROOT}/guide/product_search/ballerina.log:/usr/share\
+   /filebeat/ballerina.log --link logstash:logstash docker.elastic.co/beats/filebeat:6.2.2
 ```
  
  - Access Kibana to visualize the logs using following URL
