@@ -38,5 +38,4 @@ script:
 
 - ballerina init
 
-- ballerina test product_search
-- ballerina test ecommerce_backend
+- ballerina build
