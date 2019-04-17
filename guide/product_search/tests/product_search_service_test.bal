@@ -17,6 +17,7 @@
 import ballerina/http;
 import ballerina/test;
 import ballerina/io;
+import ecommerce_backend;
 
 http:Client httpEndpoint = new("http://localhost:9090/products", config = { timeoutMillis: 10000 });
 
