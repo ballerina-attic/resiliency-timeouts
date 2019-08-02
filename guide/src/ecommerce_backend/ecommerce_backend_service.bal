@@ -19,18 +19,16 @@ import ballerina/runtime;
 int count = 0;
 
 // Create the endpoint for the ecommerce backend
-endpoint http:Listener eCommerceBackendEP {
-    port: 9092
-};
+listener http:Listener eCommerceBackendEP = new(9092);
 
 @http:ServiceConfig { basePath: "/browse" }
-service<http:Service> eCommerceService bind eCommerceBackendEP {
+service eCommerceService on eCommerceBackendEP {
 
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/items/{item_id}"
     }
-    findItems(endpoint httpConnection, http:Request request, string item_id) {
+    resource function findItems(http:Caller httpConnection, http:Request request, string item_id) {
         count = count + 1;
         // Mock the busy service by only responding to one request out of five requests
         if (count % 5 != 4) {
@@ -47,8 +45,9 @@ service<http:Service> eCommerceService bind eCommerceBackendEP {
         };
 
         // Send the response back with the item details
-        http:Response response;
-        response.setJsonPayload(untaint itemDetails);
-        _ = httpConnection->respond(response);
+        http:Response response = new;
+        response.setJsonPayload(<@untainted> itemDetails);
+        var result = httpConnection->respond(response);
+
     }
 }

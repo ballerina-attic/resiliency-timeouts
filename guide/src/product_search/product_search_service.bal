@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 //import ballerinax/docker;
 //import ballerinax/kubernetes;
 
@@ -43,53 +44,56 @@ import ballerina/http;
 //}
 
 // Create the endpoint for the ecommerce product search service
-endpoint http:Listener productSearchEP {
-    port: 9090
-};
+listener http:Listener productSearchEP = new(9090);
 
 // Initialize the remote eCommerce endpoint
-endpoint http:Client eCommerceEndpoint {
+http:Client eCommerceEndpoint = new(
     // URI to the ecommerce backend
-    url: "http://localhost:9092/browse",
-    // End point timeout should be in milliseconds
-    timeoutMillis: 1000,
-    // Pass the endpoint timeout and retry configurations while creating the http client.
-    // Retry configuration should have retry count and the time interval between two retires
-    retryConfig: {
-        interval: 100,
-        count: 10,
-        backOffFactor: 0.5
-    }
-};
-
+    "http://localhost:9092/browse",
+    {
+        // End point timeout should be in milliseconds
+        timeoutInMillis: 1000,
+        // Pass the endpoint timeout and retry configurations while creating the http client.
+        // Retry configuration should have retry count and the time interval between two retires
+        retryConfig: {
+            intervalInMillis: 100,
+            count: 10,
+            backOffFactor: 0.5
+        }
+    });
 
 @http:ServiceConfig { basePath: "/products" }
-service<http:Service> productSearchService bind productSearchEP {
+service productSearchService on productSearchEP {
 
-    // ecommerce product search resource
+    // Ecommerce product search resource
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/search"
     }
-    searchProducts(endpoint httpConnection, http:Request request) {
-        map queryParams = request.getQueryParams();
-        var requestedItem = <string>queryParams.item;
+    resource function searchProducts (http:Caller httpConnection, http:Request request) returns error? {
+        var requestedItem = request.getQueryParamValue("item");
         // Initialize HTTP request and response to interact with eCommerce endpoint
         http:Request outRequest;
-        http:Response inResponse;
+        http:Response inResponse = new;
         // Prepare the url path with requested item
         // Use `untained` keyword since the URL paths are @Sensitive
-        string urlPath = "/items/" + untaint requestedItem;
-        if (requestedItem != null) {
+        string urlPath = "/items/" + <@untainted> requestedItem.toString();
+        if (requestedItem is string) {
             // Call the busy eCommerce backed(configured with timeout resiliency) to get item details
             inResponse = check eCommerceEndpoint->get(urlPath);
             // Send the item details back to the client
-            _ = httpConnection->respond(inResponse);
+            var result = httpConnection->respond(inResponse);
+            if (result is error) {
+                log:printError(result.reason(), err = result);
+            }
         }
         else {
             inResponse.setTextPayload("Please enter item as query parameter");
             inResponse.statusCode = 400;
-            _ = httpConnection->respond(inResponse);
+            var result = httpConnection->respond(inResponse);
+            if (result is error) {
+                log:printError(result.reason(), err = result);
+            }
         }
     }
 }

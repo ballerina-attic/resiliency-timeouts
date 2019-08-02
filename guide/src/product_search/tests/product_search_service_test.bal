@@ -18,13 +18,10 @@ import ballerina/http;
 import ballerina/test;
 import ballerina/io;
 
-endpoint http:Client httpEndpoint {
-    url: "http://localhost:9090/products",
-    timeoutMillis: 10000
-};
+http:Client httpEndpoint = new("http://localhost:9090/products", { timeoutInMillis: 10000 });
 
-@test:Config
-function testProductSearchService() {
+@test:Config{}
+function testProductSearchService() returns error? {
 
     // Initialize the empty http request and response
     http:Request req = new;
